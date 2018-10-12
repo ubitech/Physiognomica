@@ -1,0 +1,10 @@
+Package: fisiognomica
+Type: Package
+Title: Fisiognomica - A Novel prometheus Data Analytics Profiler
+Version: 0.1.0
+Author: Tasos Zafeiropoulos ,Eleni Fotopoulou
+Maintainer: <efotopoulou@ubitech.eu>
+Description: This package gets metric from prometheus monitoring engine and applies some machine learning algorithms
+License: Apache 2.0
+Encoding: UTF-8
+LazyData: true
