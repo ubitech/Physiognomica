@@ -1,6 +1,6 @@
-Package: fisiognomica
+Package: Physiognomica
 Type: Package
-Title: Fisiognomica - A Novel prometheus Data Analytics Profiler
+Title: Physiognomica - A Novel prometheus Data Analytics Profiler
 Version: 0.1.0
 Author: Tasos Zafeiropoulos ,Eleni Fotopoulou
 Maintainer: <efotopoulou@ubitech.eu>
