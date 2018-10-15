@@ -11,9 +11,9 @@
 #profiling_type = "Resource Efficiency"
 #fisiognomica::combinePrometheusMetrics(prometheous_url,start,stop,step,metric1,metric2,profiling_type)
 combinePrometheusMetrics <- function(prometheous_url,start,end,step,metric1,metric2,profiling_type) {
-
- mydata1 <- convertPrometheusDataToTabularFormat(prometheous_url,metric1,start,end,step)
- mydata2 <- convertPrometheusDataToTabularFormat(prometheous_url,metric2,start,end,step)
+  
+ mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url_query_range,metric1,start,end,step)
+ mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url_query_range,metric2,start,end,step)
 
 
  finaldata <- merge(mydata1, mydata2, by = "timestamp")
@@ -32,25 +32,38 @@ combinePrometheusMetrics <- function(prometheous_url,start,end,step,metric1,metr
 }
 
 
-convertPrometheusDataToTabularFormat <- function(prometheous_url,metric_name,start,end,step) {
+convertPrometheusDataToTabularFormat <- function(prometheous_url,metric_name,metric_friendlyName,dimension,start,end,step) {
   #result1 <-  httr::GET(paste(prometheous_url , "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average", period, sep=""))
   #print(prometheous_url)
   print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
-  print(paste(prometheous_url , metric_name, start,end,step, sep=""))
-  result1 <-  httr::GET(paste(prometheous_url , metric_name, start,end,step, sep=""))
+  
+  prometheus_url_query_range <- paste(prometheous_url , "/api/v1/query_range?query=", sep="")
+  print(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
+  result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
 
-  data1 <-content(result1)
-  metric_name1 <-data1$data$result[[1]]$metric$`__name__`
-  metric_name1 <-gsub(":", "_", metric_name1)
+  data1 <-httr::content(result1)
+  print ("data1")
+  print (data1)
+  #metric_name1 <-data1$data$result[[1]]$metric$`__name__`
+  #metric_name1 <-gsub(":", "_", metric_name1)
 
   values1 <- data1$data$result[[1]]$values
-  mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
-
-  colnames(mydata1) <- c("timestamp", metric_name1)
-
-  #print(mydata1)
-
-  return(mydata1)
+  if (is.null(values1)) {
+    print("some null values here")
+    empty_matrix <-matrix(, nrow = 0, ncol = 0)
+    return (empty_matrix)
+    }else{
+      
+      mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
+      
+      colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+      
+      #print(mydata1)
+      
+      return(mydata1)
+    }
+  
+ 
 }
 test <- function() {
   print("hellooooo there")

@@ -7,21 +7,19 @@
 # fisiognomica::getCorrelogram(prometheous_url ,start,end,step,metrics_list)
 getCorrelogram <- function(prometheous_url,start,end,step,metrics_list){
   print("getCorrelogram")
-  print(metrics_list)
-
-  for(i in metrics_list){
-    metric_name <-i
-    print(metric_name)
-  }
+  #print(metrics_list)
+  
   finaldata <- data.frame()
-  for(i in metrics_list){
-    metric_name <-i
-    print(metric_name)
-    mydata <- fisiognomica::convertPrometheusDataToTabularFormat(prometheous_url,metric_name,start,end,step)
-       if (nrow(finaldata)==0){ finaldata <- mydata}
-       else{ finaldata <- merge(finaldata,mydata, by = "timestamp")}
+  for(i in 1:nrow(metrics_list)) {
+    row <- metrics_list[i,]
+    metric_name <-row$name
+    metric_friendlyName <-row$friendlyName
+    dimensions <-row$dimensions
+    mydata <- convertPrometheusDataToTabularFormat(prometheous_url,metric_name,metric_friendlyName,dimensions,start,end,step)
+       if (nrow(finaldata)==0){ finaldata <- mydata
+       }else{ finaldata <- merge(finaldata,mydata, by = "timestamp")}
      }
-
+  print("get final data")
   colnames(finaldata)
 
   finaldata[] <- lapply(finaldata, function(x) {
@@ -29,6 +27,8 @@ getCorrelogram <- function(prometheous_url,start,end,step,metrics_list){
   })
   sapply(finaldata, class)
   finaldata <- subset( finaldata, select = -timestamp )
+  
+  finaldata <- Filter(function(x) sd(x) != 0, finaldata)
 
   #correlation matrix
   M<-cor(finaldata)
