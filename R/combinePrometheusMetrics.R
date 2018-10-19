@@ -89,10 +89,10 @@ convertPrometheusDataToTabularFormat <- function(prometheous_url,metric_name,met
 test <- function() {
   print("hellooooo there")
   metrics_appendix <- read.csv(file="metrics_appendix.csv", header=TRUE, sep=",")
-  metric1 <-metrics_appendix[29,]
+  metric1 <-metrics_appendix[19,]
   #metric1 <-toString(metric1$name)
   
-  metric2 <-metrics_appendix[11,]
+  metric2 <-metrics_appendix[7,]
   #metric2 <-toString(metric2$name)
   print(end)
   Physiognomica::combinePrometheusMetrics(prometheous_url,start,end,step,metric1,metric2,"Resource Efficiency")

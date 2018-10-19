@@ -7,8 +7,8 @@ Physiognomica::getMaestroPrometheusMetrics(prometheous_metrics_per_graph)
 prometheus_url = "http://212.101.173.70:9090"
 metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensions(prometheus_url, MyData)
 
-start = "&start=2018-10-18T10:58:30.781Z"
-end = "&end=2018-10-18T12:10:00.781Z&step"
+start = "&start=2018-10-18T13:58:30.781Z"
+end = "&end=2018-10-18T14:15:10.781Z&step"
 step = "=5m"
 
 #metrics_list <-read.csv(file="MyDataWithDimensions.csv", header=TRUE, sep=",")
