@@ -2,7 +2,9 @@
 getMaestroPrometheusMetrics <- function(prometheous_metrics_per_graph){
   print("get full set of prometheus metrics list of a specific graph")
   
-  preselected_metrics <- read.csv(file="PreselectedMetrics.csv", header=TRUE, sep=",")
+  #preselected_metrics <- read.csv(file="/home/rstudio/PreselectedMetrics.csv", header=TRUE, sep=",")
+  preselected_metrics <- read.csv(url("http://212.101.173.35/Physiognomica/PreselectedMetrics.csv"),header=TRUE, sep=",")
+  
   friendly_preselected_metrics <- preselected_metrics$friendlyName
   
   result1 <-  httr::GET(prometheous_metrics_per_graph)
@@ -40,14 +42,15 @@ getMaestroPrometheusMetrics <- function(prometheous_metrics_per_graph){
   
   #metrics_dataframe
   
-  write.csv(metrics_dataframe, file = "MyData.csv")
+  #write.csv(metrics_dataframe, file = "MyData.csv")
+  return (metrics_dataframe)
  
 }
 #prometheus_url = "http://212.101.173.70:9090"
-enrichMaestroPrometheusMetricsWithDimensions <- function(prometheus_url,file){
+enrichMaestroPrometheusMetricsWithDimensions <- function(prometheus_url,MyData){
   prometheous_url <- paste(prometheus_url,"/api/v1/series?match[]=", sep="")
   
-  MyData <- read.csv(file="MyData.csv", header=TRUE, sep=",")
+  #MyData <- read.csv(file="MyData.csv", header=TRUE, sep=",")
   MyData$name
   
   complete_metrics_dataframe <- data.frame(Characters=character(),Characters=character(),Characters=character(),Characters=character(),stringsAsFactors=FALSE)
@@ -95,9 +98,13 @@ enrichMaestroPrometheusMetricsWithDimensions <- function(prometheus_url,file){
   }
   
   #metrics_list <- complete_metrics_dataframe$name
-  write.csv(complete_metrics_dataframe, file = "MyDataWithDimensions.csv")
+  #write.csv(complete_metrics_dataframe, file = "MyDataWithDimensions.csv")
   metrics_list <- complete_metrics_dataframe
   
   return (metrics_list)
   
+}
+hello <- function(){
+  print("Hello from Physiognomica!")
+  print("Let's do some profiling!")
 }

@@ -3,9 +3,15 @@
 # start = "&start=2018-09-27T10:10:30.781Z"
 # end = "&end=2018-09-27T20:11:00.781Z&step"
 # step = "=10m"
+# start = "2018-09-27T10:10:30.781Z"
+# end = "2018-09-27T20:11:00.781Z&step"
+# step = "10m"
 # metrics_list = c("netdata:lambdaapp:traefik:lambdacoreapp_system_load_load_average{dimension='load1'}", "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average","netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension='writes'}", "netdata:lambdaapp:traefik:lambdacoreapp_system_ipv4_kilobits_persec_average{dimension='received'}", "netdata:lambdaapp:traefik:multfunc_system_entropy_entropy_average", "netdata:lambdaapp:traefik:sumfunc_system_active_processes_processes_average{instance='[fc04:4d1b:4f34:67cc:9986:ecb3:d73b:2990]:19999'}")
 # fisiognomica::getCorrelogram(prometheous_url ,start,end,step,metrics_list)
 getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
+  start <- paste("&start=" ,start, sep="")
+  end <- paste("&end=" ,end, sep="")
+  step <- paste("&step=" ,step, sep="")
   print("getCorrelogram")
   #print(metrics_list)
   
@@ -18,7 +24,7 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
     dimensions <-row$dimensions
     print("dimensions")
     print(dimensions)
-    mydata <- convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
+    mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
       if (nrow(finaldata)==0){ finaldata <- mydata
        }else{ 
          if (nrow(mydata)!=0){
@@ -33,7 +39,8 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
     if(is.factor(x)) as.numeric(as.character(x)) else x
   })
   sapply(finaldata, class)
-  finaldata <- subset( finaldata, select = -timestamp )
+  #finaldata <- subset( finaldata, select = -c(timestamp) )
+  finaldata$timestamp <-0
   
   finaldata <- Filter(function(x) sd(x) != 0, finaldata)
   
@@ -78,15 +85,13 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
   #corrplot:corrplot(M, p.mat = finaldata_significance$p, insig = "pch", sig.level = .05)
 
   # matrix of the p-value of the correlation
-  p.mat <- cor.mtest(finaldata)
+  p.mat <- Physiognomica::cor.mtest(finaldata)
   head(p.mat[, 1:5])
   #corrplot::corrplot(M, type="upper", tl.cex = 0.3, order="hclust", tl.srt=60, p.mat = p.mat, sig.level = 0.05, diag = FALSE)
 
-  corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="hclust",
-                     p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
+  #corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="hclust", p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
   
-  corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="FPC",
-                     p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
+  corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
   return (metrics_appendix)

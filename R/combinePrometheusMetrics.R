@@ -79,7 +79,7 @@ combinePrometheusPlots <- function(dataset1,dataset2,dataset3,x_axis_name,y_axis
   return (basicplot)
 }
 
-convertPrometheusDataToTabularFormat <- function(prometheous_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
+convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
 
     empty_matrix <-matrix(, nrow = 0, ncol = 0)
   print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
