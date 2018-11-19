@@ -2,15 +2,19 @@
 # which has as output a visualization of two prometheus metrics
 #prometheus_url = "http://212.101.173.70:9090/api/v1/query?query="
 #prometheus_url = "http://212.101.173.70:9090/api/v1/query_range?query="
-#start = "&start=2018-09-27T10:10:30.781Z"
-#end = "&end=2018-09-27T20:11:00.781Z&step"
-#step = "=10m"
+#start = "2018-09-27T10:10:30.781Z"
+#end = "2018-09-27T20:11:00.781Z"
+#step = "10m"
 #period = "[1m]"
 #metric1 = "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average"
 #metric2 = "netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension=\"writes\"}"
 #profiling_type = "Resource Efficiency"
 #fisiognomica::combinePrometheusMetrics(prometheus_url,start,stop,step,metric1,metric2,profiling_type)
 combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metric2,profiling_type,return_type) {
+
+  start <- paste("&start=" ,start, sep="")
+  end <- paste("&end=" ,end, sep="")
+  step <- paste("&step=" ,step, sep="")
 
  mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1$name),toString(metric1$friendlyName),toString(metric1$dimensions),start,end,step)
  mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2$name),toString(metric2$friendlyName),toString(metric2$dimensions),start,end,step)
@@ -20,6 +24,15 @@ combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metri
  
  x_axis_name <-paste(toString(metric1$friendlyName),toString(metric1$dimensions),sep="")
  y_axis_name <-paste(toString(metric2$friendlyName),toString(metric2$dimensions),sep="")
+ 
+ mydata1 <- as.data.frame.matrix(mydata1)
+ mydata2 <- as.data.frame.matrix(mydata2)
+ 
+ print("------------------------mydata1-------------------------------")
+ print(mydata1)
+ print("------------------------mydata2-------------------------------")
+ print(mydata2)
+ 
  
  finaldata <- merge(mydata1, mydata2, by = "timestamp")
  
@@ -118,16 +131,26 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
  
 }
 
-
-test_combinePrometheusMetrics <- function() {
+#prometheous_url
+#start
+#end
+#step
+#metrics_appendix
+#m1 <-19
+#m2 <-43
+#profiling_type <- "Resource Efficiency"
+#return_type <- "plot"
+combinePrometheusMetrics_chained_with_correlogram <- function(prometheus_url,start,end,step,metrics_appendix,m1,m2,profiling_type,return_type) {
   print("test combinePrometheusMetrics")
-  metrics_appendix <- read.csv(file="metrics_appendix.csv", header=TRUE, sep=",")
-  metric1 <-metrics_appendix[13,]
+  if (typeof(metrics_appendix)!='list'){
+    metrics_appendix <- read.csv(file="metrics_appendix.csv", header=TRUE, sep=",")
+  }
+  metric1 <-metrics_appendix[m1,]
   #metric1 <-toString(metric1$name)
   
-  metric2 <-metrics_appendix[37,]
+  metric2 <-metrics_appendix[m2,]
   #metric2 <-toString(metric2$name)
-  Physiognomica::combinePrometheusMetrics(prometheous_url,start,end,step,metric1,metric2,"Resource Efficiency","plot")
+  Physiognomica::combinePrometheusMetrics(prometheus_url,start,end,step,metric1,metric2,"Resource Efficiency","plot")
   
 }
 

@@ -87,11 +87,14 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
   # matrix of the p-value of the correlation
   p.mat <- Physiognomica::cor.mtest(finaldata)
   head(p.mat[, 1:5])
-  #corrplot::corrplot(M, type="upper", tl.cex = 0.3, order="hclust", tl.srt=60, p.mat = p.mat, sig.level = 0.05, diag = FALSE)
 
   #corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="hclust", p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
   
   corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
+  
+  svg("correlogram.svg",width=14,height=7)
+  corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
+  dev.off()
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
   return (metrics_appendix)
