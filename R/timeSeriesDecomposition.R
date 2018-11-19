@@ -1,3 +1,6 @@
+library(xts)
+library(fpp2)
+
 timeSeriesDecomposition <- function(prometheus_url,start,end,step,metric){
   print("time series decomposition")
   mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1$name),toString(metric1$friendlyName),toString(metric1$dimensions),start,end,step)
@@ -8,6 +11,25 @@ timeSeriesDecomposition <- function(prometheus_url,start,end,step,metric){
   mydata1$timestamp <- as.numeric(as.character(mydata1$timestamp))
   mydata1$timestamp <- as.POSIXct(mydata1$timestamp, origin="1970-01-01")
   
+  head(mydata1)
+  names(mydata1) <- c("timestamp", "metric")
+  
+  mydata1_ts <- xts(x=mydata1$metric, order.by = mydata1$timestamp)
+  mdsts = as.ts(mydata1_ts)
+  
+  autoplot(mydata1_ts)
+  autoplot(mdsts)
+  
+#  autoplot(mydata1_ts) +
+#     forecast::autolayer(meanf(mydata1_ts, h=24), PI=FALSE, series="Mean") +
+#     forecast::autolayer(naive(mydata1_ts, h=24), PI=FALSE, series="Naïve") +
+#     forecast::autolayer(snaive(mydata1_ts, h=24), PI=FALSE, series="Seasonal naïve")
+#   
+#   fit <- mydata1_ts %>% decompose(type="additive")
+#   
+#   autoplot(mydata1_ts, series="Data") +
+#     forecast::autolayer(trendcycle(fit), series="Trend") +
+#     forecast::autolayer(seasadj(fit), series="Seasonally Adjusted")
 }
 
 #prometheus_url = "http://212.101.173.70:9090"
