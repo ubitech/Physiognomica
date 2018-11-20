@@ -44,8 +44,15 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
   
   finaldata <- Filter(function(x) sd(x) != 0, finaldata)
   
+  if(length(finaldata)==0){
+    
+    stop("Not enough values so as to generate a correlogram!")
+  }
+  
   final_data_column_names <- colnames(finaldata)
   final_data_column_size <- ncol(finaldata)
+  
+  
   
   usq <- 0
   for(i in 1:final_data_column_size) {

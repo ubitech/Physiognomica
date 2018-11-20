@@ -14,9 +14,9 @@ MyData<-Physiognomica::getMaestroPrometheusMetrics(prometheous_metrics_per_graph
 prometheus_url = "http://212.101.173.70:9090"
 metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensions(prometheus_url, MyData)  
 
-start = "2018-11-19T13:54:30.781Z"
-end = "2018-11-19T14:54:10.781Z"
-step = "5m"
+start = "2018-11-19T06:28:30.781Z"
+end = "2018-11-19T07:28:10.781Z"
+step = "1m"
 
 #Method 3: Generate Correlogram  
 #metrics_list <-read.csv(file="MyDataWithDimensions.csv", header=TRUE, sep=",")
