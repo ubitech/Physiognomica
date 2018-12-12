@@ -7,16 +7,16 @@ Following are presented both ways.
 //Execute from R
 ------------------------------------------------
 #Method 1: Get Maestro Metrics  
-prometheous_metrics_per_graph <- "http://212.101.173.70:8080/api/v1/external/applicationInstance/stiHzFchQQ/metrics"
+prometheous_metrics_per_graph <- "http://212.101.173.70:8080/api/v1/external/applicationInstance/sM7dEiCHRa/metrics"
 MyData<-Physiognomica::getMaestroPrometheusMetrics(prometheous_metrics_per_graph)  
 
 #Method 2: Enrich Maestro metrics with Dimensions   
 prometheus_url = "http://212.101.173.70:9090"
 metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensions(prometheus_url, MyData)  
 
-start = "2018-11-19T06:28:30.781Z"
-end = "2018-11-19T07:28:10.781Z"
-step = "1m"
+start = "2018-12-12T09:20:30.781Z"
+end = "2018-12-12T10:20:10.781Z"
+step = "5m"
 
 #Method 3: Generate Correlogram  
 #metrics_list <-read.csv(file="MyDataWithDimensions.csv", header=TRUE, sep=",")
@@ -45,7 +45,21 @@ curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getCorrelogram'  -d "pr
 curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/combinePrometheusMetrics_chained_with_correlogram'  -d "prometheus_url='http://212.101.173.70:9090'&start='2018-11-19T13:54:30.781Z'&end='2018-11-19T14:54:10.781Z'&step='5m'&metrics_appendix=x0db39378abe230&m1=12&m2=24&profiling_type='Resource Efficiency'&return_type='plot'"
 
 
+curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getChordDiagram'  
+
+
 Notes:
 For better visualization
 https://stackoverflow.com/questions/34525173/how-to-create-correlogram-using-d3-as-in-the-example-picture/34539194#34539194
+
+http://jokergoo.github.io/blog/html/large_matrix_circular.html
+https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
+https://rpsychologist.com/d3/correlation/
+https://github.com/mattflor/chorddiag
+https://rdrr.io/github/software-analytics/Rnalytica/man/stepwise.vif.html
+https://www.rdocumentation.org/packages/usdm/versions/1.1-18/topics/vif
+https://rdrr.io/cran/circlize/man/chordDiagram.html
+
+
+
 

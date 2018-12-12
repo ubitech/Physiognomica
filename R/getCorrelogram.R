@@ -42,6 +42,8 @@ getCorrelogram <- function(prometheus_url,start,end,step,metrics_list){
   #finaldata <- subset( finaldata, select = -c(timestamp) )
   finaldata$timestamp <-0
   
+  #print("finaldata")
+  #print(finaldata)
   finaldata <- Filter(function(x) sd(x) != 0, finaldata)
   
   if(length(finaldata)==0){

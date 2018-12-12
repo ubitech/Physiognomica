@@ -28,14 +28,7 @@ combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metri
  mydata1 <- as.data.frame.matrix(mydata1)
  mydata2 <- as.data.frame.matrix(mydata2)
  
- print("------------------------mydata1-------------------------------")
- print(mydata1)
- print("------------------------mydata2-------------------------------")
- print(mydata2)
- 
- 
  finaldata <- merge(mydata1, mydata2, by = "timestamp")
- 
  
  basicplot <- ggplot2::qplot(x=finaldata[[colnames(mydata1)[2]]],
                          y=finaldata[[colnames(mydata2)[2]]],
@@ -51,6 +44,14 @@ combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metri
          vpadding = grid::unit(1, "lines"), fontfamily = "", fontface = "plain",
          colour = "blue", size = 6, angle = 0, lineheight = 0.9)
  basicplot<-cowplot::ggdraw(p2)
+ 
+ # ggsave(file="test.svg", plot=basicplot, width=10, height=8)
+ #fd2 <- finaldata
+ #fd2$timestamp <- NULL
+ #d3page <- r2d3::r2d3(data=fd2, options=c(25,50,-50,0,colnames(fd2)[1],colnames(fd2)[2],label),script = "R/linechart.js")
+ #d3page1<- r2d3::save_d3_html(d3page, file = "lala.html")
+ #XML::saveXML(d3page, file="lala.html", compression=0, indent=T)
+ 
  
  if(return_type=="plot"){
    return(basicplot)
@@ -117,14 +118,10 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
     print("some null values here")
     return (empty_matrix)
   }else{
-      
+      print("i got the values")
       mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
-      
-      
       colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
-      
       #print(mydata1)
-      
       return(mydata1)
     }
   
