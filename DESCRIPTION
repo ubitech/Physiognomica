@@ -1,7 +1,7 @@
 Package: Physiognomica
 Type: Package
 Title: Physiognomica - A Novel prometheus Data Analytics Profiler
-Version: 0.4.4.0
+Version: 0.4.4.3
 Author: Tasos Zafeiropoulos ,Eleni Fotopoulou
 Maintainer: <efotopoulou@ubitech.eu>
 Description: This package gets metric from prometheus monitoring engine and applies some machine learning algorithms.(dont forget to install pandoc)

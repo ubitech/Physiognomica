@@ -72,7 +72,12 @@ getChordDiagram <- function(prometheus_url,start,end,step,metrics_list){
   }
   metrics_appendix$name <- metrics_name
   metrics_appendix$friendlyName <- metrics_friendlyname
+  
+  metrics_appendix_simple <- dplyr::select(metrics_appendix, metric_number,friendlyName_with_dimensions)
+ 
+  
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
+  write.csv(metrics_appendix_simple, file = "metrics_appendix_simple.csv")
   
   #----------------------------------------------
   finaldata_without_group_dimensions_colianearity <- 0
@@ -86,15 +91,17 @@ getChordDiagram <- function(prometheus_url,start,end,step,metrics_list){
     dimensions_group <- a$metric_number
     print(dimensions_group)
     print("//////////////")
-    subset<- select(finaldata, dimensions_group)
+    subset<- dplyr::select(finaldata, dimensions_group)
     #print(subset)
     usdm::vif(subset) 
     
     v1 <- usdm::vifcor(subset, th=0.90) # identify collinear variables that should be excluded
     re1 <- usdm::exclude(subset,v1) # exclude the collinear variables that were identified in the previous step
     print(re1)
-    finaldata_without_group_dimensions_colianearity = cbind(finaldata_without_group_dimensions_colianearity,re1)
+    finaldata_without_group_dimensions_colianearity <- cbind(finaldata_without_group_dimensions_colianearity,re1)
   }
+  finaldata_without_group_dimensions_colianearity <- finaldata_without_group_dimensions_colianearity[,-1] 
+
   dim(finaldata)
   dim(finaldata_without_group_dimensions_colianearity)
   
@@ -117,14 +124,14 @@ getChordDiagram <- function(prometheus_url,start,end,step,metrics_list){
   sig_matrix_total<-abs(sig_matrix)
   sig_matrix_total[sig_matrix_total < 0.6] <- 0
   sig_matrix_total<-sig_matrix_total*100
-  chorddiag::chorddiag(sig_matrix_total,groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
+  chorddiag::chorddiag(sig_matrix_total,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
   
   #--------ChordDiagram positive--------------------------------------
   sig_matrix_positive <-sig_matrix
   sig_matrix_positive[sig_matrix_positive <0] <- 0
   sig_matrix_positive[sig_matrix_positive < 0.6] <- 0
   sig_matrix_positive<-sig_matrix_positive*100
-  chorddiag::chorddiag(sig_matrix_positive,groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
+  mychord_positive <- chorddiag::chorddiag(sig_matrix_positive,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
   
   #--------ChordDiagram negative--------------------------------------
   sig_matrix_negative <-sig_matrix
@@ -132,138 +139,93 @@ getChordDiagram <- function(prometheus_url,start,end,step,metrics_list){
   sig_matrix_negative[sig_matrix_negative > -0.6] <- 0
   sig_matrix_negative<-sig_matrix_negative*100
   sig_matrix_negative<-abs(sig_matrix_negative)
-  chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE, clickAction = "alert( d.source.index);")
+  chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE, clickAction = "alert( d.source.index);")
   
-  chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE,tooltipUnit = " %",precision = 4, 
-clickAction = "alert( JSON.stringify(d));  
-var lala = d.source.index; 
-alert( 'http://212.101.173.35/getscatterplot/'+this.id+'/'+d.source.value);
+  mychord_negative <- chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE,tooltipUnit = " %",precision = 4, 
+clickAction = "
+//alert( JSON.stringify(d));  
+//var lala = d.source.index; 
+//var url = new URL(document.location);
+//var c = url.searchParams.get('c');
+//alert(c);
+//alert( 'http://212.101.173.35/getscatterplot/'+this.id+'/'+d.source.value);
 
-var url = 'sample-url.php';
-var params = 'lorem=ipsum&name=alpha';
+var data = null;
 var xhr = new XMLHttpRequest();
-xhr.open('POST', url, true);
+xhr.addEventListener('readystatechange', function () {
+  if (this.readyState === 4) {
+    alert(this.responseText);
+    window.open( 'http://212.101.173.35/getscatterplot/'+this.id+'/'+d.source.value);
 
-//Send the proper header information along with the request
-xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-xhr.send(params);
+  }
+});
+xhr.open('POST', 'http://212.101.173.35/ocpu/library/Physiognomica/R/hello/');
+xhr.send(data);
 ")
  
-#window.open( 'http://212.101.173.35/getscatterplot/'+this.id+'/'+d.source.value);
-  
-  
-  #----------------------------------------------
-  M<-cor(finaldata)
-  dim(M)
-  highlyCorrelated <- caret::findCorrelation(M, cutoff=(0.90),verbose = FALSE)
-  important_metrics = M[-highlyCorrelated,-highlyCorrelated]
-  dim(important_metrics)
-  important_metrics<-abs(important_metrics)
-  
-  important_metrics[important_metrics ==1] <- 0
-  important_metrics[important_metrics < 0.4] <- 0
-
-  important_metrics[important_metrics > 0.9] <- 0  
-  
-  important_metrics<- important_metrics[-1:-35,-1:-35]
-  chorddiag::chorddiag(important_metrics,groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30)
-  #----------------------------------------------
-  M<-cor(finaldata)
-  dim(M)
- 
-  
-  highlyCorrelated <- caret::findCorrelation(M, cutoff=(0.80),verbose = FALSE)
-  
-  important_metrics = M[-highlyCorrelated,-highlyCorrelated]
-  dim(important_metrics)
-  
- 
-  important_metrics[important_metrics < 0.3 & important_metrics > -0.3 ] <- 0
-  
-  important_metrics[important_metrics ==1] <- 0.0
-  
-  important_metrics[is.nan(important_metrics)] = 0
-  
-  row.names(important_metrics)
-  colnames(important_metrics)
-  chorddiag::chorddiag(important_metrics)
-  important_metrics <- 300 * important_metrics
-  
-  chorddiag::chorddiag(important_metrics, groupnamePadding = 30,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30)
-  
-  #----------------------------------------------
-  output = psych::corr.test(finaldata)
-  A = output$r    # matrix A here contains the correlation coefficients
-  B = output$p   # matrix B here contains the corresponding p-values
-  
-  sig_matrix = ifelse(B < 0.05, A, 0)
-  sig_matrix[sig_matrix=1] <- 0
-  sig_matrix[sig_matrix < 0.2 & sig_matrix > -0.2] <- 0
-  
-  highlyCorrelated <- caret::findCorrelation(sig_matrix, cutoff=(0.95),verbose = FALSE)
-  important_var=colnames(A[,-highlyCorrelated])
-  
-  important_metrics = A[-highlyCorrelated,-highlyCorrelated]
-  
-  dim(important_metrics)
-  
-  cl <- colors(distinct = TRUE)
-  set.seed(15887) # to set random generator seed
-  groupColors <- sample(cl, nrow(important_metrics))
-  
-  chorddiag::chorddiag(important_metrics,groupColors = groupColors, groupnamePadding = 50)
-  chorddiag::chorddiag(important_metrics, groupnamePadding = 30)
-  
-  #----------------------------------------------
-  sig_matrix = ifelse(B < 0.05, A, NA)
-  
-  sig_matrix[is.na(sig_matrix)] <- 0
-  
-  sig_matrix[sig_matrix=1] <- 0
-  
-  sig_matrix_na_rows <- sig_matrix[rowSums(is.na(sig_matrix)) == 0,]
 
   
-  cl <- colors(distinct = TRUE)
-  set.seed(15887) # to set random generator seed
-  groupColors <- sample(cl, nrow(sig_matrix))
+  mychord_negative_to_retunr <- htmlwidgets::saveWidget(mychord_negative, file = "mychordNegative.html")
+  mychord_positive_to_retunr <- htmlwidgets::saveWidget(mychord_positive, file = "mychordPositive.html")
   
-  chorddiag::chorddiag(sig_matrix,groupColors = groupColors, groupnamePadding = 50)
+  #library(htmltools)
+  widgets <- list(mychord_negative, mychord_positive)
+  fns <- list("mychordNegative.html","mychordPositive.html","metrics_appendix.html")
   
-  unique_friendly_names <- unique(metrics_appendix$friendlyName)
-  for(i in unique_friendly_names) {
-    unique_row_friendly_name <- i
-    a <- metrics_list[which(metrics_list$friendlyName== unique_row_friendly_name), ]
-    print("------------")
-    print(a$metric_number)
-  }
+
+  ititles <- lapply(fns, function(fn)  
+    shiny::tags$div(
+      shiny::tags$h3(fn, style="float: right;margin-left:300px;")
+
+  ))
+  
+  iframes <- lapply(fns, function(fn) 
+    shiny::tags$iframe(
+      src = paste0("http://212.101.173.35:8787/files/Physiognomica/", fn), 
+      style="float: right;", 
+      width="500",height="500"
+    )
+  )
+  page_body <- shiny::tags$html(
+    shiny::tags$body(
+      ititles,
+      shiny::tags$div(style="clear:both"),
+      iframes
+    )
+  ) 
+ return (htmltools::save_html(page_body,file = "index.html"))
+
+  
+ #check colors with chordiagram
+ #-------------------------------------------
+ #values <- c(0.104654225, 0.001781299, 0.343747296, 0.139326617, 0.375521201, 0.101218053)
+ #as.vector(sig_matrix_positive)
+ #rr <- range( as.vector(sig_matrix_positive))
+ #svals <- (sig_matrix_positive-rr[1])/diff(rr)
+ ## Play around with ends of the color range
+ #f <- colorRamp(c("lightblue", "blue"))
+ #groupColors <- rgb(f(svals)/255)
+ ## Check that it works
+ #image(seq_along(svals), 1, as.matrix(seq_along(svals)), col=groupColors, axes=FALSE, xlab="", ylab="")
+ #chorddiag::chorddiag(sig_matrix_positive,groupColors = groupColors,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
+  
+  #m <- matrix(c(0,  5871, 8916, 2868,1951, 10048, 0, 6171, 8010, 16145, 8090, 8045,1013,   990,  940, 0),byrow = TRUE,nrow = 4, ncol = 4)
+  #haircolors <- c("black", "blonde", "brown", "red")
+  #dimnames(m) <- list(have = haircolors, prefer = haircolors)
+  #groupColors <- c("#000000", "#FFDD89", "#957244", "#F26223")
+  #chorddiag::chorddiag(m, groupColors = groupColors, groupnamePadding = 20)
   
   
-  
-  dimnames(titanic.mat ) <- list(Class = levels(titanic_tbl$Class),
-                                 Survival = levels(titanic_tbl$Survived))
-  
-  
-  
-  m <- matrix(c(0,  5871, 8916, 2868,
-                1951, 10048, 0, 6171,
-                8010, 16145, 8090, 8045,
-                1013,   990,  940, 0),
-              byrow = TRUE,
-              nrow = 4, ncol = 4)
-  haircolors <- c("black", "blonde", "brown", "red")
-  dimnames(m) <- list(have = haircolors,
-                      prefer = haircolors)
-  
-  groupColors <- c("#000000", "#FFDD89", "#957244", "#F26223")
-  mychord <- chorddiag::chorddiag(m, groupColors = groupColors, groupnamePadding = 20)
+  #rbPal <- colorRampPalette(c('red','blue'))
+  #groupColors <- rbPal(10)
+  #chorddiag::chorddiag(m, groupColors = groupColors, groupnamePadding = 20)
   
   
-  rbPal <- colorRampPalette(c('red','blue'))
-  groupColors <- rbPal(10)
-  chorddiag::chorddiag(m, groupColors = groupColors, groupnamePadding = 20)
-  
-  mychord_to_retunr <- htmlwidgets::saveWidget(mychord, file = "mychord.html")
-  return (mychord_to_retunr)
+  #make use of findcorrelation
+  #-------------------------------------------
+  #M<-cor(finaldata)
+  #dim(M)
+  #highlyCorrelated <- caret::findCorrelation(M, cutoff=(0.90),verbose = FALSE)
+  #important_metrics = M[-highlyCorrelated,-highlyCorrelated]
+  #dim(important_metrics)
 }
