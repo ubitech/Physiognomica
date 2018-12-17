@@ -29,9 +29,9 @@ Following are presented some analysis results. For more details see the wiki pag
 
 | Analysis Service  | Result |
 | ------------- | ------------- |
-| correlogram  | <img src="/images/correlogram.png"> |
-| chord diagram  | <img src="/images/mychordExample.png"> |
-| linear regression  | <img src="/images/resourceefficiency.png"> |
+| correlogram  | <img src="/images/correlogram.png" width="200"> |
+| chord diagram  | <img src="/images/mychordExample.png" width="200"> |
+| linear regression  | <img src="/images/resourceefficiency.png" width="200"> |
 
 #### Execution of analytic workflow from R
 Physiognomica functions can be execute both by R or via opencpu API.
