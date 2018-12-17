@@ -1,6 +1,9 @@
 # Physiognomica
 Fisiognomica is a Novel prometheus Data Analytics Profiler. It is an R package that supports a set of functions as presented at the wiki page. The supported funtions are available for execution via an opencpue server. Physiognomica functions can be execute both by R or via opencpu API. Physiognomica functions can be both triggered as separate analysis services or as a analisis fucntion chain. Physiognomica analisis functions can be registered at cloud-apps-profiler project platform or can be used separately.
 
+#### Supported Analysis chain:
+<img src="/images/fuctionchain.png" width="500">
+
 #### Prerequisites:
 1. R Project for Statistical Computing mininum version (R version 3.4.4 (2018-03-15))
 https://www.r-project.org/
@@ -33,7 +36,22 @@ The following lead developers are responsible for this repository and have admin
 Following are presented both ways.
 
 
-<img src="/images/policyArchitecture.png" width="500">
+#### Rererences
+https://stackoverflow.com/questions/34525173/how-to-create-correlogram-using-d3-as-in-the-example-picture/34539194#34539194
+
+http://jokergoo.github.io/blog/html/large_matrix_circular.html
+https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
+https://rpsychologist.com/d3/correlation/
+https://github.com/mattflor/chorddiag
+https://github.com/mattflor/chorddiag/blob/master/man/chorddiag.Rd
+https://rdrr.io/github/software-analytics/Rnalytica/man/stepwise.vif.html
+https://www.rdocumentation.org/packages/usdm/versions/1.1-18/topics/vif
+https://rdrr.io/cran/circlize/man/chordDiagram.html
+https://psycnotes.wordpress.com/selecting-and-visualizing-only-significant-correlation-coefficients-in-matrix/ 
+https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
+https://www.quora.com/Why-do-R-programmers-use-complicated-OpenCPU-for-web-apps-if-they-have-great-Shiny-platform
+https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values
+https://www.weave.works/blog/distributed-tracing-loki-zipkin-prometheus-mashup/
 
 //Execute from R
 ------------------------------------------------
@@ -86,22 +104,7 @@ curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/combinePrometheusMetric
 curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getChordDiagram'  
 
 
-Notes:
-For better visualization
-https://stackoverflow.com/questions/34525173/how-to-create-correlogram-using-d3-as-in-the-example-picture/34539194#34539194
 
-http://jokergoo.github.io/blog/html/large_matrix_circular.html
-https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
-https://rpsychologist.com/d3/correlation/
-https://github.com/mattflor/chorddiag
-https://github.com/mattflor/chorddiag/blob/master/man/chorddiag.Rd
-https://rdrr.io/github/software-analytics/Rnalytica/man/stepwise.vif.html
-https://www.rdocumentation.org/packages/usdm/versions/1.1-18/topics/vif
-https://rdrr.io/cran/circlize/man/chordDiagram.html
-https://psycnotes.wordpress.com/selecting-and-visualizing-only-significant-correlation-coefficients-in-matrix/ 
-https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
-https://www.quora.com/Why-do-R-programmers-use-complicated-OpenCPU-for-web-apps-if-they-have-great-Shiny-platform
-https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values
 
 
 
