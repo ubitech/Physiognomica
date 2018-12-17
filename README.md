@@ -54,8 +54,8 @@ https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values
 https://www.weave.works/blog/distributed-tracing-loki-zipkin-prometheus-mashup/
 
 
-//Execute from R
-------------------------------------------------
+#### Execution of analytic workflow from R
+```
 #Method 1: Get Maestro Metrics  
 prometheous_metrics_per_graph <- "http://212.101.173.70:8080/api/v1/external/applicationInstance/sM7dEiCHRa/metrics"
 MyData<-Physiognomica::getMaestroPrometheusMetrics(prometheous_metrics_per_graph)  
@@ -82,10 +82,10 @@ m2 <-43
 profiling_type <- "Resource Efficiency"
 return_type <- "plot"
 Physiognomica::combinePrometheusMetrics_chained_with_correlogram(prometheus_url,start,end,step,metrics_appendix,m1,m2,profiling_type,return_type)
+```
 
-
-//Execute from Opencpu
---------------------------------------
+#### Execution of analytic workflow from Opencpu API
+```
 #Method 1: Get Maestro Metrics  
 curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getMaestroPrometheusMetrics'  -d "prometheous_metrics_per_graph='http://212.101.173.70:8080/api/v1/external/applicationInstance/sM7dEiCHRa/metrics'"
 
@@ -100,9 +100,7 @@ curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getChordDiagram'  -d "p
 
 #Method 4: Combine Metrics in plot
 curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/combinePrometheusMetrics_chained_with_correlogram'  -d "prometheus_url='http://212.101.173.70:9090'&start='2018-12-13T10:00:30.781Z'&end='2018-12-13T11:00:10.781Z'&step='5m'&metrics_appendix=x0db39378abe230&m1=12&m2=24&profiling_type='Resource Efficiency'&return_type='plot'"
-
-
-curl 'http://212.101.173.35/ocpu/library/Physiognomica/R/getChordDiagram'  
+``` 
 
 
 
