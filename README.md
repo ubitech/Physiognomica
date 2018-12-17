@@ -29,8 +29,8 @@ Following are presented some analysis results. For more details see the wiki pag
 
 | Analysis Service  | Result |
 | ------------- | ------------- |
-| correlogram  | <img src="/images/correlogram.svg"> |
-| chord diagram  | <img src="/images/mychordNegative.html"> |
+| correlogram  | <img src="/images/correlogram.png"> |
+| chord diagram  | <img src="/images/mychordExample.png"> |
 | linear regression  | <img src="/images/resourceefficiency.png"> |
 
 #### Execution of analytic workflow from R
