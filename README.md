@@ -3,7 +3,7 @@ Fisiognomica - A Novel prometheus Data Analytics Profiler
 Fisiognomica is a Novel prometheus Data Analytics Profiler. It is an R package that supports a set of functions as presented at the wiki page. The supported funtions are available for execution via an opencpue server. Physiognomica functions can be execute both by R or via opencpu API. Physiognomica functions can be both triggered as separate analysis services or as a analisis fucntion chain. Physiognomica analisis functions can be registered at cloud-apps-profiler project platform or can be used separately.
 
 #### Supported Analysis chain:
-<img src="/images/functionchaingeneric.png" width="500">
+<img src="/images/functionchaingeneric.png">
 
 #### Prerequisites:
 1. R Project for Statistical Computing mininum version (R version 3.4.4 (2018-03-15))
