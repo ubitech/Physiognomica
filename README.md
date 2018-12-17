@@ -25,10 +25,13 @@ sudo apt-get install -y rstudio-server
 ```
 
 #### Supported Analysis results
-| First Header  | Second Header |
+Following are presented some analysis results. For more details see the wiki page:
+
+| Analysis Service  | Result |
 | ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| correlogram  | <img src="/images/correlogram.svg"> |
+| chord diagram  | <img src="/images/mychordNegative.html"> |
+| linear regression  | <img src="/images/resourceefficiency.png"> |
 
 #### Execution of analytic workflow from R
 Physiognomica functions can be execute both by R or via opencpu API.
@@ -90,16 +93,16 @@ The following lead developers are responsible for this repository and have admin
 
 #### Rererences
 1.https://stackoverflow.com/questions/34525173/how-to-create-correlogram-using-d3-as-in-the-example-picture/34539194#34539194
-2.http://jokergoo.github.io/blog/html/large_matrix_circular.html
-3.https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
-4.https://rpsychologist.com/d3/correlation/
-5.https://github.com/mattflor/chorddiag
-6.https://github.com/mattflor/chorddiag/blob/master/man/chorddiag.Rd
-7.https://rdrr.io/github/software-analytics/Rnalytica/man/stepwise.vif.html
-8.https://www.rdocumentation.org/packages/usdm/versions/1.1-18/topics/vif
-9.https://rdrr.io/cran/circlize/man/chordDiagram.html
-10.https://psycnotes.wordpress.com/selecting-and-visualizing-only-significant-correlation-coefficients-in-matrix/ 
-11.https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html
-12.https://www.quora.com/Why-do-R-programmers-use-complicated-OpenCPU-for-web-apps-if-they-have-great-Shiny-platform
-13.https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values
-14.https://www.weave.works/blog/distributed-tracing-loki-zipkin-prometheus-mashup/
+2.http://jokergoo.github.io/blog/html/large_matrix_circular.html  
+3.https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html  
+4.https://rpsychologist.com/d3/correlation/  
+5.https://github.com/mattflor/chorddiag  
+6.https://github.com/mattflor/chorddiag/blob/master/man/chorddiag.Rd  
+7.https://rdrr.io/github/software-analytics/Rnalytica/man/stepwise.vif.html  
+8.https://www.rdocumentation.org/packages/usdm/versions/1.1-18/topics/vif  
+9.https://rdrr.io/cran/circlize/man/chordDiagram.html  
+10.https://psycnotes.wordpress.com/selecting-and-visualizing-only-significant-correlation-coefficients-in-matrix/   
+11.https://datascience-enthusiast.com/R/Interactive_chord_diagrams_R.html  
+12.https://www.quora.com/Why-do-R-programmers-use-complicated-OpenCPU-for-web-apps-if-they-have-great-Shiny-platform  
+13.https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values  
+14.https://www.weave.works/blog/distributed-tracing-loki-zipkin-prometheus-mashup/  
