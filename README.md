@@ -29,9 +29,9 @@ Following are presented some analysis results. For more details see the wiki pag
 
 | Analysis Service  | Description  | Result |
 | ------------- | ------------- | ------------- |
-| correlogram | generation of  correlogram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/correlogram.png" width="200"> |
-| chord diagram | generation of  chord diagram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/mychordExample.png" width="200"> |
-| linear regression |calculation and representation of the linear or multilinear regression model for two or more aplication graph metrics | <img src="/images/resourceefficiency.png" width="200"> |
+| correlogram | generation of  correlogram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/correlogram.png" width="300"> |
+| chord diagram | generation of  chord diagram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/mychordExample.png" width="300"> |
+| linear regression |calculation and representation of the linear or multilinear regression model for two or more aplication graph metrics | <img src="/images/resourceefficiency.png" width="300"> |
 
 #### Execution of analytic workflow from R
 Physiognomica functions can be execute both by R or via opencpu API.
