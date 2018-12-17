@@ -27,11 +27,11 @@ sudo apt-get install -y rstudio-server
 #### Supported Analysis results
 Following are presented some analysis results. For more details see the wiki page:
 
-| Analysis Service  | Result |
-| ------------- | ------------- |
-| correlogram  | <img src="/images/correlogram.png"> |
-| chord diagram  | <img src="/images/mychordExample.png"> |
-| linear regression  | <img src="/images/resourceefficiency.png"> |
+| Analysis Service  | Description  | Result |
+| ------------- | ------------- | ------------- |
+| correlogram | generation of  correlogram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/correlogram.png" width="300"> |
+| chord diagram | generation of  chord diagram with all high significant (positive and negative) correlation between the retrieved metrics from prometheus for a spesific application graph | <img src="/images/mychordExample.png" width="300"> |
+| linear regression |calculation and representation of the linear or multilinear regression model for two or more aplication graph metrics | <img src="/images/resourceefficiency.png" width="300"> |
 
 #### License
 This component is published under Apache 2.0 license. Please see the LICENSE file for more details.
