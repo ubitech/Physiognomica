@@ -24,6 +24,12 @@ sudo apt-get install -y opencpu-server
 sudo apt-get install -y rstudio-server 
 ```
 
+#### Supported Analysis results
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+
 #### Execution of analytic workflow from R
 Physiognomica functions can be execute both by R or via opencpu API.
 Following are presented both ways.
