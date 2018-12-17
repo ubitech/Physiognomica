@@ -1,8 +1,39 @@
 # Physiognomica
-Fisiognomica - A Novel prometheus Data Analytics Profiler
+Fisiognomica is a Novel prometheus Data Analytics Profiler. It is an R package that supports a set of functions as presented at the wiki page. The supported funtions are available for execution via an opencpue server. Physiognomica functions can be execute both by R or via opencpu API. Physiognomica functions can be both triggered as separate analysis services or as a analisis fucntion chain. Physiognomica analisis functions can be registered at cloud-apps-profiler project platform or can be used separately.
 
-Physiognomica functions can be execute both by R or via opencpu API.
+#### Prerequisites:
+1. R Project for Statistical Computing mininum version (R version 3.4.4 (2018-03-15))
+https://www.r-project.org/
+1. Opencpu API for Embedded Scientific Computing
+https://www.opencpu.org/
+```
+# Requires Ubuntu 18.04 (Bionic) or 16.04 (Xenial)
+sudo add-apt-repository -y ppa:opencpu/opencpu-2.1
+sudo apt-get update 
+sudo apt-get upgrade
+
+# Installs OpenCPU server
+sudo apt-get install -y opencpu-server
+# Done! Open http://yourhost/ocpu in your browser
+
+# Optional: installs rstudio in http://yourhost/rstudio
+sudo apt-get install -y rstudio-server 
+```
+#### License
+
+This component is published under Apache 2.0 license. Please see the LICENSE file for more details.
+
+#### Lead Developers
+
+The following lead developers are responsible for this repository and have admin rights. They can, for example, merge pull requests.
+
+- Eleni Fotopoulou ([@elfo](https://github.com/efotopoulou))
+- Anastasios Zafeiropoulos ([@tzafeir ](https://github.com/azafeiropoulos))
+
 Following are presented both ways.
+
+
+<img src="/images/policyArchitecture.png" width="500">
 
 //Execute from R
 ------------------------------------------------
