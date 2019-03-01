@@ -128,6 +128,41 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
  
 }
 
+convertPrometheusDataToTabularFormatWithoutFriendlynames <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
+  
+  empty_matrix <-matrix(, nrow = 0, ncol = 0)
+  print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
+  
+  prometheus_url_query_range <- paste(prometheus_url , "/api/v1/query_range?query=", sep="")
+  print(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
+  result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
+  
+  data1 <-httr::content(result1)
+  print ("data1")
+  print (data1)
+  if (data1=="400 Bad Request"){return (empty_matrix)}
+  
+  #metric_name1 <-data1$data$result[[1]]$metric$`__name__`
+  #metric_name1 <-gsub(":", "_", metric_name1)
+  if(length(data1$data$result)==0){
+    print(paste("No datapoints found for ",metric_name, sep=""))
+    return (empty_matrix)
+  }
+  values1 <- data1$data$result[[1]]$values
+  if (is.null(values1)) {
+    print("some null values here")
+    return (empty_matrix)
+  }else{
+    print("i got the values")
+    mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
+    #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+    colnames(mydata1) <- c("timestamp", metric_friendlyName)
+    #print(mydata1)
+    return(mydata1)
+  }
+  
+  
+}
 #prometheous_url
 #start
 #end

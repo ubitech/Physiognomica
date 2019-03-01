@@ -104,6 +104,61 @@ enrichMaestroPrometheusMetricsWithDimensions <- function(prometheus_url,MyData){
   return (metrics_list)
   
 }
+#Enrich with dimensions a set of prometheus metrics
+#prometheus_url = "http://212.101.173.70:9090"
+enrichMaestroPrometheusMetricsWithDimensionsWithoutSession <- function(prometheus_url,metrics){
+  prometheous_url <- paste(prometheus_url,"/api/v1/series?match[]=", sep="")
+  
+  complete_metrics_dataframe <- data.frame(Characters=character(),Characters=character(),Characters=character(),Characters=character(),stringsAsFactors=FALSE)
+  colnames(complete_metrics_dataframe) <- c("name","friendlyName","dimensions","friendlyName_with_dimensions")
+  
+  for(row in metrics) {
+    prometheous_match_query <- paste(prometheous_url,row, sep="")
+    print(prometheous_match_query)
+    result1 <-  httr::GET(prometheous_match_query)
+    data1 <-httr::content(result1)
+    print(data1$data)
+    list_of_dimensions <- data1$data
+    
+    for(i in list_of_dimensions){
+      # print(i$chart)
+      
+      complete_metric_name <-  paste(row,"{chart='",i$chart,"',",
+                                     "dimension='",i$dimension,"',",
+                                     "family='",i$family,"',",
+                                     "instance='",i$instance,"',",
+                                     "job='",i$job,"'}",
+                                     sep="")
+      
+      complete_metric_friendlyName <- row
+      dimensions <- paste("{chart='",i$chart,"',",
+                          "dimension='",i$dimension,"',",
+                          "family='",i$family,"',",
+                          "instance='",i$instance,"',",
+                          "job='",i$job,"'}",
+                          sep="")
+      friendlyName_with_dimensions <- paste(row,"{chart='",i$chart,"',",
+                                            "dimension='",i$dimension,"',",
+                                            "family='",i$family,"',",
+                                            "instance='",i$instance,"',",
+                                            "job='",i$job,"'}",
+                                            sep="")
+      
+      
+      
+      newRow <- data.frame(name=complete_metric_name,friendlyName=complete_metric_friendlyName,dimensions=dimensions,friendlyName_with_dimensions=friendlyName_with_dimensions)
+      
+      complete_metrics_dataframe <- rbind(complete_metrics_dataframe,newRow)
+    }
+  }
+  
+  #metrics_list <- complete_metrics_dataframe$name
+  #write.csv(complete_metrics_dataframe, file = "MyDataWithDimensions.csv")
+  metrics_list <- complete_metrics_dataframe
+  
+  return (metrics_list)
+  
+}
 hello <- function(){
   print("Hello from Physiognomica!")
   print("Let's do some profiling!")
