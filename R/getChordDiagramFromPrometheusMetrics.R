@@ -3,12 +3,7 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
   
   if (isTRUE(enriched)){
     print("i am enriched")
-    metrics <-data.frame(metrics)
-    metrics_list <- data.frame("name","friendlyName","dimensions")
-    metrics_list$name = metrics
-    metrics_list$friendlyName = metrics
-    metrics_list$dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}"))
-    
+    metrics_list =data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
   }
   else{
     #enrichMaestroPrometheusMetricsWithDimensionsWithoutSession

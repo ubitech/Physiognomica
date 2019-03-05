@@ -10,40 +10,70 @@
 #metric2 = "netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension=\"writes\"}"
 #profiling_type = "Resource Efficiency"
 #fisiognomica::combinePrometheusMetrics(prometheus_url,start,stop,step,metric1,metric2,profiling_type)
-combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metric2,profiling_type,return_type) {
+combinePrometheusMetrics <- function(prometheus_url,start,end,step,metrics,enriched) {
 
   start <- paste("&start=" ,start, sep="")
   end <- paste("&end=" ,end, sep="")
   step <- paste("&step=" ,step, sep="")
-
- mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1$name),toString(metric1$friendlyName),toString(metric1$dimensions),start,end,step)
- mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2$name),toString(metric2$friendlyName),toString(metric2$dimensions),start,end,step)
-
   
+  
+  metric1name = metrics[1]
+  metric1friendlyName = metrics[1]
+  metric1dimensions = stringr::str_extract(metrics[1], stringr::regex("\\{.*\\}"))
+  
+  metric2name =metrics[2]
+  metric2friendlyName =metrics[2]
+  metric2dimensions = stringr::str_extract(metrics[2], stringr::regex("\\{.*\\}"))
 
+ mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
  
- x_axis_name <-paste(toString(metric1$friendlyName),toString(metric1$dimensions),sep="")
- y_axis_name <-paste(toString(metric2$friendlyName),toString(metric2$dimensions),sep="")
- 
- mydata1 <- as.data.frame.matrix(mydata1)
- mydata2 <- as.data.frame.matrix(mydata2)
+ mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2name),toString(metric2friendlyName),toString(metric2dimensions),start,end,step)
  
  finaldata <- merge(mydata1, mydata2, by = "timestamp")
  
- basicplot <- ggplot2::qplot(x=finaldata[[colnames(mydata1)[2]]],
-                         y=finaldata[[colnames(mydata2)[2]]],
-                         data=finaldata,
-                         main=profiling_type,
-                         xlab=substr(x_axis_name, 1, 30),
-                         ylab=substr(y_axis_name, 1, 30),group=1)+
-   ggplot2::geom_line(colour="steelblue") +
-   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+ yaxisd3 <- finaldata[[colnames(mydata1)[2]]]
+ xaxisd3 <- finaldata[[colnames(mydata2)[2]]]
+ 
+ xaxisd3 <- as.numeric(as.character(xaxisd3))
+ yaxisd3 <- as.numeric(as.character(yaxisd3))
+ 
+ linearMod <- lm(yaxisd3 ~ xaxisd3, data = finaldata)  # build linear regression model on full data
+ print(linearMod)
+ summary(linearMod) 
+ 
+ 
+ cor(xaxisd3, yaxisd3)
+ cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))
 
- label<-paste("Full Axis Names are as follows:\n X-axis:\n",metric1$friendlyName, "\n Y-axis:\n", metric2$friendlyName) 
- p2 <- cowplot::add_sub(basicplot, label, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5,
-         vpadding = grid::unit(1, "lines"), fontfamily = "", fontface = "plain",
-         colour = "blue", size = 6, angle = 0, lineheight = 0.9)
- basicplot<-cowplot::ggdraw(p2)
+ linearModString <- toString(capture.output(summary(linearMod)))
+ 
+ #basicplot <- ggplotRegression(linearMod)
+ 
+ myslope <-coef(linearMod)["xaxisd3"]
+ myintercept <- coef(linearMod)["(Intercept)"]
+ 
+ 
+ metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric1friendlyName, ylab = metric2friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric1friendlyName, "Y-AXIS:  ", metric2friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
+ 
+ metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "metricsCombination.html")
+ write.csv(finaldata, file = "finaldata.csv")
+ return(metricsCombination_to_return)
+ 
+ #label<-paste("Full Axis Names are as follows:\n X-AXIS:\n",metric1friendlyName, "\n Y-AXIS:\n", metric2friendlyName, sep="\n" ) 
+ #basicplot <- ggplot2::qplot(x=finaldata[[colnames(mydata1)[2]]],
+ #                       y=finaldata[[colnames(mydata2)[2]]],
+ #                       data=finaldata,
+ #                       main=profiling_type,
+ #                       xlab=substr(x_axis_name, 1, 30),
+ #                       ylab=substr(y_axis_name, 1, 30),group=1)+
+ # ggplot2::geom_line(colour="steelblue") +
+ # ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+
+ 
+ #p2 <- cowplot::add_sub(basicplot, label, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5,
+ #        vpadding = grid::unit(1, "lines"), fontfamily = "", fontface = "plain",
+ #        colour = "blue", size = 6, angle = 0, lineheight = 0.9)
+ #basicplot<-cowplot::ggdraw(p2)
  
  # ggsave(file="test.svg", plot=basicplot, width=10, height=8)
  #fd2 <- finaldata
@@ -52,13 +82,19 @@ combinePrometheusMetrics <- function(prometheus_url,start,end,step,metric1,metri
  #d3page1<- r2d3::save_d3_html(d3page, file = "lala.html")
  #XML::saveXML(d3page, file="lala.html", compression=0, indent=T)
  
- 
- if(return_type=="plot"){
-   return(basicplot)
- }else{
-   return(finaldata)
- }
- 
+}
+
+ggplotRegression <- function (fit) {
+  
+  require(ggplot2)
+  
+  ggplot2::ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point() +
+    stat_smooth(method = "lm", col = "red") +
+    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       "Intercept =",signif(fit$coef[[1]],5 ),
+                       " Slope =",signif(fit$coef[[2]], 5),
+                       " P =",signif(summary(fit)$coef[2,4], 5)))
 }
 
 combinePrometheusPlots <- function(dataset1,dataset2,dataset3,x_axis_name,y_axis_name, description) {

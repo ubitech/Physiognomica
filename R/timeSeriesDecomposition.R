@@ -20,7 +20,9 @@ timeSeriesDecomposition <- function(prometheus_url,start,end,step,metric){
   names(mydata1) <- c("timestamp", "metric")
   summary(mydata1)
   head(mydata1)  
+  ts_mydata1 <- as.ts(mydata1)
 
+  ts_mydata1 %>% decompose(type="additive")
   
 ###########################################################
   mydata1
