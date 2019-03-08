@@ -11,34 +11,69 @@ library(fpp2)
 #metric1$dimensions<-"{chart='users.cpu_system',dimension='netdata',family='cpu',instance='[fcef:ef08:3ddd:601a:3805:acf7:df34:ea8f]:19999',job='netdata'}"
 
 
-timeSeriesDecomposition <- function(prometheus_url,start,end,step,metric){
+timeSeriesDecomposition <- function(prometheus_url,start,end,step,metrics,enriched){
   print("time series decomposition")
-  mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1$name),toString(metric1$friendlyName),toString(metric1$dimensions),start,end,step)
+  
+  start <- paste("&start=" ,start, sep="")
+  end <- paste("&end=" ,end, sep="")
+  step <- paste("&step=" ,step, sep="")
+  
+  metricname = metrics[1]
+  metricfriendlyName = metrics[1]
+  metricdimensions = stringr::str_extract(metrics[1], stringr::regex("\\{.*\\}"))
+  
+  mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metricname),toString(metricfriendlyName),toString(metricdimensions),start,end,step)
   mydata1<-as.data.frame(mydata1)
   
-###########################################################
-  names(mydata1) <- c("timestamp", "metric")
-  summary(mydata1)
-  head(mydata1)  
-  ts_mydata1 <- as.ts(mydata1)
-
-  ts_mydata1 %>% decompose(type="additive")
+  #shorten metric description
+  colnames(mydata1)[2] <- "metric1"
   
-###########################################################
-  mydata1
-  write.csv(mydata1, file = "timeseriesexample.csv")
-  options(digits=20)
-  mydata1$timestamp <- as.numeric(as.character(mydata1$timestamp))
-  mydata1$timestamp <- as.POSIXct(mydata1$timestamp, origin="1970-01-01")
-  
+  # exclude first column
+  mydata1 <- mydata1[, -1]  
   head(mydata1)
-  names(mydata1) <- c("timestamp", "metric")
   
-  mydata1_ts <- xts(x=mydata1$metric, order.by = mydata1$timestamp)
-  mdsts = as.ts(mydata1_ts)
+  mydata1_ts <-ts(mydata1, frequency = 10)
+  #mydata1_ts <- ts(mydata1, frequency = 10)
+  #autoplot(mydata1_ts)
   
-  ggplot2::autoplot(mydata1_ts)
-  ggplot2::autoplot(mdsts)
+  #time series decomposition (additive)
+  #mydata1_decomp_add <- decompose(mydata1_ts)
+  #plot(mydata1_decomp_add)
+  
+  #time series decomposition (multiplicative)
+  #mydata1_decomp_multi <- decompose(mydata1_ts, type="multiplicative")
+  #plot(mydata1_decomp_multi)
+  
+  #time series decomposition based on stl (“Seasonal Decomposition of Time Series by LOESS”)
+  fit = stl(mydata1_ts, s.window = "periodic")
+  plot(fit)
+  
+  #fit2 = stl(mydata1_ts, s.window = "periodic", t.window = 15)
+  #plot(fit2)
+  
+###########################################################
+  #names(mydata1) <- c("timestamp", "metric")
+  #summary(mydata1)
+  #head(mydata1)  
+  #ts_mydata1 <- as.ts(mydata1)
+
+  #ts_mydata1 %>% decompose(type="additive")
+  
+###########################################################
+  #mydata1
+  #write.csv(mydata1, file = "timeseriesexample.csv")
+  #options(digits=20)
+  #mydata1$timestamp <- as.numeric(as.character(mydata1$timestamp))
+  #mydata1$timestamp <- as.POSIXct(mydata1$timestamp, origin="1970-01-01")
+  
+  #head(mydata1)
+  #names(mydata1) <- c("timestamp", "metric")
+  
+  #mydata1_ts <- xts(x=mydata1$metric, order.by = mydata1$timestamp)
+  #mdsts = as.ts(mydata1_ts)
+  
+  #ggplot2::autoplot(mydata1_ts)
+  #ggplot2::autoplot(mdsts)
   
 #  autoplot(mydata1_ts) +
 #     forecast::autolayer(meanf(mydata1_ts, h=24), PI=FALSE, series="Mean") +
@@ -51,6 +86,8 @@ timeSeriesDecomposition <- function(prometheus_url,start,end,step,metric){
 #     forecast::autolayer(trendcycle(fit), series="Trend") +
 #     forecast::autolayer(seasadj(fit), series="Seasonally Adjusted")
 }
+
+
 
 #prometheus_url = "http://212.101.173.70:9090"
 #start = "&start=2018-10-19T07:30:30.781Z"
