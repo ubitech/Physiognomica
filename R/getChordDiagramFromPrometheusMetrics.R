@@ -88,11 +88,11 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
     metrics_appendix$name <- metrics_name
     metrics_appendix$friendlyName <- metrics_friendlyname
     
-    metrics_appendix_simple <- dplyr::select(metrics_appendix, metric_number,friendlyName_with_dimensions)
+    #metrics_appendix_simple <- dplyr::select(metrics_appendix, metric_number,friendlyName_with_dimensions)
     
     
     write.csv(metrics_appendix, file = "metrics_appendix.csv")
-    write.csv(metrics_appendix_simple, file = "metrics_appendix_simple.csv")
+    #write.csv(metrics_appendix_simple, file = "metrics_appendix_simple.csv")
     
     #----------------------------------------------
     finaldata_without_group_dimensions_colianearity <- 0
@@ -137,6 +137,12 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
     sig_matrix_total<-abs(sig_matrix)
     sig_matrix_total[sig_matrix_total < 0.6] <- 0
     sig_matrix_total<-sig_matrix_total*100
+    
+    
+    write.csv(sig_matrix_total, file = "correlation_matrix.csv")
+    correlation_matrix_json <- jsonlite::toJSON(sig_matrix_total)
+    write(correlation_matrix_json, "correlation_matrix.json")
+    
     chorddiag::chorddiag(sig_matrix_total,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
     
     #--------ChordDiagram positive--------------------------------------
@@ -177,34 +183,45 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
                                              ")
     
     
+    #mychord_negative_to_retunr <- htmlwidgets::saveWidget(mychord_negative, file = "mychordNegative.html")
+    #mychord_positive_to_retunr <- htmlwidgets::saveWidget(mychord_positive, file = "mychordPositive.html")
     
-    mychord_negative_to_retunr <- htmlwidgets::saveWidget(mychord_negative, file = "mychordNegative.html")
-    mychord_positive_to_retunr <- htmlwidgets::saveWidget(mychord_positive, file = "mychordPositive.html")
-    
-    #library(htmltools)
+  
     widgets <- list(mychord_negative, mychord_positive)
-    fns <- list("mychordNegative.html","mychordPositive.html","metrics_appendix.html")
+    #ititles <- lapply(widgets, function(fn)  
+    # shiny::tags$div(
+    #   shiny::tags$h3(fn, style="float:left;margin-left:300px;")
+    # ))
     
     
-    ititles <- lapply(fns, function(fn)  
-      shiny::tags$div(
-        shiny::tags$h3(fn, style="float: right;margin-left:300px;")
+    
+    ititle1 <- 
+      shiny::tags$div(shiny::tags$h3("Chord Diagramm with positive and statistical significant correlations", style="float:left;margin-left:300px;"),
+        shiny::tags$h3(mychord_positive, style="float:left;margin-left:300px;"))
         
-      ))
+      
     
-    iframes <- lapply(fns, function(fn) 
-      shiny::tags$iframe(
-        src = paste0("http://212.101.173.35:8787/files/Physiognomica/", fn), 
-        style="float: right;", 
-        width="500",height="500"
-      )
-    )
+    ititle2 <- 
+      shiny::tags$div(shiny::tags$h3("Chord Diagramm with negative and statistical significant correlation", style="float:left;margin-left:300px;"),
+                      shiny::tags$h3(mychord_negative, style="float:left;margin-left:300px;"))
+    
+    
+    myvars <- c("metric_number", "friendlyName_with_dimensions")
+    newdata <- metrics_appendix[myvars]
+    names(newdata) <- c("metric_number", "metric_name")
+   
     page_body <- shiny::tags$html(
       shiny::tags$body(
-        ititles,
-        shiny::tags$div(style="clear:both"),
-        iframes
+        ititle1,
+        ititle2,
+        #shiny::tags$div(style="clear:both"),
+        tableHTML::tableHTML(newdata)
+        #iframes
       )
     ) 
-    return (htmltools::save_html(page_body,file = "index.html"))
+    #htmltools::save_html(page_body,file = "index.html")
+    #https://stackoverflow.com/questions/17748566/how-can-i-turn-an-r-data-frame-into-a-simple-unstyled-html-table
+    #return (htmltools::save_html(page_body,file = "index.html"))
+    htmltools::save_html(page_body,file = "correlation_page.html")
+    return (correlation_matrix_json)
 }

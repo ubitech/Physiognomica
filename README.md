@@ -57,3 +57,4 @@ The following lead developers are responsible for this repository and have admin
 12.https://www.quora.com/Why-do-R-programmers-use-complicated-OpenCPU-for-web-apps-if-they-have-great-Shiny-platform  
 13.https://stackoverflow.com/questions/22255465/assign-colors-to-a-range-of-values  
 14.https://www.weave.works/blog/distributed-tracing-loki-zipkin-prometheus-mashup/  
+https://bl.ocks.org/armollica/56217d01ddf1370773da
