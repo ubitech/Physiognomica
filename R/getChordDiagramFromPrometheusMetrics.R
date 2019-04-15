@@ -187,24 +187,19 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
     #mychord_positive_to_retunr <- htmlwidgets::saveWidget(mychord_positive, file = "mychordPositive.html")
     
   
-    widgets <- list(mychord_negative, mychord_positive)
+    #widgets <- list(mychord_negative, mychord_positive)
     #ititles <- lapply(widgets, function(fn)  
     # shiny::tags$div(
     #   shiny::tags$h3(fn, style="float:left;margin-left:300px;")
     # ))
     
-    
-    
     ititle1 <- 
-      shiny::tags$div(shiny::tags$h3("Chord Diagramm with positive and statistical significant correlations", style="float:left;margin-left:300px;"),
-        shiny::tags$h3(mychord_positive, style="float:left;margin-left:300px;"))
-        
-      
-    
+      shiny::tags$div(shiny::tags$h3("Chord Diagramm with positive and statistical significant correlations"),
+        shiny::tags$h3(mychord_positive))
+  
     ititle2 <- 
-      shiny::tags$div(shiny::tags$h3("Chord Diagramm with negative and statistical significant correlation", style="float:left;margin-left:300px;"),
-                      shiny::tags$h3(mychord_negative, style="float:left;margin-left:300px;"))
-    
+      shiny::tags$div(shiny::tags$h3("Chord Diagramm with negative and statistical significant correlation"),
+                      shiny::tags$h3(mychord_negative))
     
     myvars <- c("metric_number", "friendlyName_with_dimensions")
     newdata <- metrics_appendix[myvars]

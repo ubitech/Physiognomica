@@ -156,7 +156,8 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
   }else{
       print("i got the values")
       mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
-      colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+      #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+      colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , "", sep=""))
       #print(mydata1)
       return(mydata1)
     }

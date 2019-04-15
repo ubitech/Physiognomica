@@ -46,7 +46,27 @@ timeSeriesDecomposition <- function(prometheus_url,start,end,step,metrics,enrich
   
   #time series decomposition based on stl (“Seasonal Decomposition of Time Series by LOESS”)
   fit = stl(mydata1_ts, s.window = "periodic")
+  
+  jpeg('tm_series_decomposition.jpg')
   plot(fit)
+  dev.off()
+  
+  mn <- toString(metric_name)
+  metric_name_without_dimensions <- strsplit( mn, "\\{")[[1]][1]
+  dimensions <- stringr::str_extract( mn, stringr::regex("\\{.*\\}"))
+  
+  ibody <- 
+    shiny::tags$div(shiny::tags$h3("Time Series decomposition for metric:"),
+                    shiny::tags$h4(metric_name_without_dimensions),
+                    shiny::tags$h4(dimensions),
+                    shiny::tags$img(src = "tm_series_decomposition.jpg"))
+  
+  page_body <- shiny::tags$html(
+    shiny::tags$body(
+      ibody
+    )
+  ) 
+  htmltools::save_html(page_body,file = "time_series_decomposition.html")
   
   #fit2 = stl(mydata1_ts, s.window = "periodic", t.window = 15)
   #plot(fit2)
