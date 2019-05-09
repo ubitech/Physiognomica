@@ -51,7 +51,7 @@ timeSeriesDecomposition <- function(prometheus_url,start,end,step,metrics,enrich
   plot(fit)
   dev.off()
   
-  mn <- toString(metric_name)
+  mn <- toString(metricname)
   metric_name_without_dimensions <- strsplit( mn, "\\{")[[1]][1]
   dimensions <- stringr::str_extract( mn, stringr::regex("\\{.*\\}"))
   

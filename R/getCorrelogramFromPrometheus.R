@@ -109,11 +109,9 @@ getCorrelogramFromPrometheusMetrics <- function(prometheus_url,start,end,step,me
   head(p.mat[, 1:5])
   
   #corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="hclust", p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
-  
-  corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
-  
+
   svg("correlogram.svg",width=14,height=7)
-  corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
+  corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.01, insig = "blank", diag = FALSE)
   dev.off()
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")

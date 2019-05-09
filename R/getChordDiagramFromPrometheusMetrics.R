@@ -4,8 +4,7 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
   if (isTRUE(enriched)){
     print("i am enriched")
     metrics_list =data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
-  }
-  else{
+  }else{
     #enrichMaestroPrometheusMetricsWithDimensionsWithoutSession
     metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensionsWithoutSession(prometheus_url,metrics)
   }
@@ -130,12 +129,12 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
     A = output$r    # matrix A here contains the correlation coefficients
     B = output$p   # matrix B here contains the corresponding p-values
     
-    sig_matrix = ifelse(B > 0.05, A, 0)
+    sig_matrix = ifelse(B < 0.01, A, 0)  
     sig_matrix[sig_matrix ==1] <- 0
     
     #--------ChordDiagram total--------------------------------------
     sig_matrix_total<-abs(sig_matrix)
-    sig_matrix_total[sig_matrix_total < 0.6] <- 0
+    #sig_matrix_total[sig_matrix_total < 0.4] <- 0
     sig_matrix_total<-sig_matrix_total*100
     
     
@@ -148,14 +147,14 @@ getChordDiagramFromPrometheusMetrics <- function(prometheus_url,start,end,step,m
     #--------ChordDiagram positive--------------------------------------
     sig_matrix_positive <-sig_matrix
     sig_matrix_positive[sig_matrix_positive <0] <- 0
-    sig_matrix_positive[sig_matrix_positive < 0.6] <- 0
+    #sig_matrix_positive[sig_matrix_positive < 0.6] <- 0
     sig_matrix_positive<-sig_matrix_positive*100
     mychord_positive <- chorddiag::chorddiag(sig_matrix_positive,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
     
     #--------ChordDiagram negative--------------------------------------
     sig_matrix_negative <-sig_matrix
     sig_matrix_negative[sig_matrix_negative >0] <- 0
-    sig_matrix_negative[sig_matrix_negative > -0.6] <- 0
+    #sig_matrix_negative[sig_matrix_negative > -0.6] <- 0
     sig_matrix_negative<-sig_matrix_negative*100
     sig_matrix_negative<-abs(sig_matrix_negative)
     chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE, clickAction = "alert( d.source.index);")

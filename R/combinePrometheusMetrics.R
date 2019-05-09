@@ -53,7 +53,7 @@ combinePrometheusMetrics <- function(prometheus_url,start,end,step,metrics,enric
  myintercept <- coef(linearMod)["(Intercept)"]
  
  
- metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric1friendlyName, ylab = metric2friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric1friendlyName, "Y-AXIS:  ", metric2friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
+ metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
  
  metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "metricsCombination.html")
  write.csv(finaldata, file = "finaldata.csv")
