@@ -82,7 +82,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   print(linearMod)
   summary(linearMod) 
   
-  step.model1 <- stepAIC(linearMod, direction = "both", trace = FALSE)
+  step.model1 <- MASS::stepAIC(linearMod, direction = "both", trace = FALSE)
   summary(step.model1)
   
   linear_regression_variables <- variable.names(step.model1) 
@@ -104,10 +104,12 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   newdata <- metrics_appendix[myvars]
   names(newdata) <- c("metric_number", "metric_name")
   
-  library(sjPlot)
-  sjPlot::tab_model(linearMod,use.viewer=FALSE, file="summary_model.html")
+  sjPlot::tab_model(step.model1,use.viewer=FALSE,show.se=TRUE,show.ci=FALSE)
+  
+  #library(sjPlot)
+  summary_as_html <- sjPlot::tab_model(step.model1,use.viewer=FALSE,show.se=TRUE,show.ci=FALSE, file="summary_model.html")
   #cat(tab$page.content)
-  #htmltools::save_html(tab,file = "summary_model.html")
+  #htmltools::save_html(sjPlot::tab_model(linearMod),file = "summary_model.html")
   
   ibody <- 
     shiny::tags$div(shiny::tags$h3("Multiple linear regression model for metric"),
@@ -122,7 +124,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
     )
   ) 
   htmltools::save_html(page_body,file = "multiple_linear_regression.html")
-  
+  return (summary_as_html)
   
   #library(GGally)
   #ggscatmat(finaldata, columns = 1: ncol(finaldata))

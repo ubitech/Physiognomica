@@ -8,7 +8,7 @@
 # step = "10m"
 # metrics = c("netdata:lambdaapp:traefik:lambdacoreapp_system_load_load_average{dimension='load1'}", "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average","netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension='writes'}", "netdata:lambdaapp:traefik:lambdacoreapp_system_ipv4_kilobits_persec_average{dimension='received'}", "netdata:lambdaapp:traefik:multfunc_system_entropy_entropy_average", "netdata:lambdaapp:traefik:sumfunc_system_active_processes_processes_average{instance='[fc04:4d1b:4f34:67cc:9986:ecb3:d73b:2990]:19999'}")
 # fisiognomica::getCorrelogram(prometheous_url ,start,end,step,metrics)
-getCorrelogramFromPrometheusMetrics <- function(prometheus_url,start,end,step,metrics,enriched){
+correlogram <- function(prometheus_url,start,end,step,metrics,enriched){
   start <- paste("&start=" ,start, sep="")
   end <- paste("&end=" ,end, sep="")
   step <- paste("&step=" ,step, sep="")
@@ -115,6 +115,24 @@ getCorrelogramFromPrometheusMetrics <- function(prometheus_url,start,end,step,me
   dev.off()
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
+  
+  
+  myvars <- c("metric_number", "friendlyName_with_dimensions")
+  newdata <- metrics_appendix[myvars]
+  names(newdata) <- c("metric_number", "metric_name")
+  
+  ibody <- 
+    shiny::tags$div(shiny::tags$h3("Correlogram with statistical significant correlations of 0.01:"),
+                    shiny::tags$img(src = "correlogram.svg"))
+  
+  page_body <- shiny::tags$html(
+    shiny::tags$body(
+      ibody,
+      tableHTML::tableHTML(newdata)
+    )
+  ) 
+  htmltools::save_html(page_body,file = "correlogram.html")
+  
   return (metrics_appendix)
 }
 

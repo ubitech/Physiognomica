@@ -10,7 +10,7 @@
 #metric2 = "netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension=\"writes\"}"
 #profiling_type = "Resource Efficiency"
 #fisiognomica::combinePrometheusMetrics(prometheus_url,start,stop,step,metric1,metric2,profiling_type)
-combinePrometheusMetrics <- function(prometheus_url,start,end,step,metrics,enriched) {
+linear_regression <- function(prometheus_url,start,end,step,metrics,enriched) {
 
   start <- paste("&start=" ,start, sep="")
   end <- paste("&end=" ,end, sep="")
