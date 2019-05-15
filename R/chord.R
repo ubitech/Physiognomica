@@ -145,31 +145,18 @@ chord <- function(prometheus_url,start,end,step,metrics,enriched){
     
     chorddiag::chorddiag(sig_matrix_total,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
     
-    #--------ChordDiagram positive--------------------------------------
-    sig_matrix_positive <-sig_matrix
-    sig_matrix_positive[sig_matrix_positive <0] <- 0
-    #sig_matrix_positive[sig_matrix_positive < 0.6] <- 0
-    sig_matrix_positive<-sig_matrix_positive*100
-    mychord_positive <- chorddiag::chorddiag(sig_matrix_positive,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE)
-    
-    #--------ChordDiagram negative--------------------------------------
-    sig_matrix_negative <-sig_matrix
-    sig_matrix_negative[sig_matrix_negative >0] <- 0
-    #sig_matrix_negative[sig_matrix_negative > -0.6] <- 0
-    sig_matrix_negative<-sig_matrix_negative*100
-    sig_matrix_negative<-abs(sig_matrix_negative)
-    chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE, clickAction = "alert( d.source.index);")
-    
-    mychord_negative <- chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE,tooltipUnit = " %",precision = 4, clickAction = "
+    #---------------------------click_action_string-------------------------------------
+    click_action_string = "
 //alert( JSON.stringify(d));  
 var source_index = d.source.index; 
-alert(source_index);
+//alert(source_index);
 var target_index = d.target.index; 
-alert(target_index);
+//alert(target_index);
 var chord_url = new URL(document.location);
 var chord_url_string = chord_url.toString();
 analytics_session_id = chord_url_string.split('tmp/').pop().split('/files/')[0];
-alert(analytics_session_id);
+linear_regression_ip = chord_url_string.split('://').pop().split('/ocpu/')[0];
+//alert(analytics_session_id);
 var http = new XMLHttpRequest();
 var url = 'http://212.101.173.35/ocpu/library/Physiognomica/R/linear_regression_from_chord ';
 var params = 'source_index='+source_index+'&target_index='+target_index+'&metrics_appendix='+analytics_session_id;
@@ -180,22 +167,33 @@ http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
 http.onreadystatechange = function() {//Call a function when the state changes.
   if(http.readyState == 4 && http.status == 201) {
-      alert(http.responseText);
+      //alert(http.responseText);
+      my_response = http.responseText;
+      new_session_id = my_response.split('tmp/').pop().split('/files/')[0];
+      //alert(new_session_id);
+      window.open('http://'+linear_regression_ip+'/ocpu/tmp/'+new_session_id+'/files/linear_regression.html');
   }
 }
-http.send(params);"
-)
+http.send(params);" 
     
     
-    #mychord_negative_to_retunr <- htmlwidgets::saveWidget(mychord_negative, file = "mychordNegative.html")
-    #mychord_positive_to_retunr <- htmlwidgets::saveWidget(mychord_positive, file = "mychordPositive.html")
     
-  
-    #widgets <- list(mychord_negative, mychord_positive)
-    #ititles <- lapply(widgets, function(fn)  
-    # shiny::tags$div(
-    #   shiny::tags$h3(fn, style="float:left;margin-left:300px;")
-    # ))
+    #--------ChordDiagram positive--------------------------------------
+    sig_matrix_positive <-sig_matrix
+    sig_matrix_positive[sig_matrix_positive <0] <- 0
+    sig_matrix_positive[sig_matrix_positive < 0.4] <- 0
+    sig_matrix_positive<-sig_matrix_positive*100
+    mychord_positive <- chorddiag::chorddiag(sig_matrix_positive,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE,tooltipUnit = " %",precision = 4, clickAction = click_action_string)
+    
+    #--------ChordDiagram negative--------------------------------------
+    sig_matrix_negative <- sig_matrix
+    sig_matrix_negative[sig_matrix_negative > 0] <- 0
+    sig_matrix_negative[sig_matrix_negative > -0.4] <- 0
+    sig_matrix_negative <- sig_matrix_negative*100
+    sig_matrix_negative <-abs (sig_matrix_negative)
+    
+    mychord_negative <- chorddiag::chorddiag(sig_matrix_negative,groupnamePadding = 3,groupnameFontsize = 10,showZeroTooltips = FALSE,margin = 30,showTicks = FALSE,tooltipUnit = " %",precision = 4, clickAction = click_action_string)
+    
     
     ititle1 <- 
       shiny::tags$div(shiny::tags$h3("Chord Diagramm with positive and statistical significant correlations"),
@@ -218,9 +216,7 @@ http.send(params);"
         #iframes
       )
     ) 
-    #htmltools::save_html(page_body,file = "index.html")
     #https://stackoverflow.com/questions/17748566/how-can-i-turn-an-r-data-frame-into-a-simple-unstyled-html-table
-    #return (htmltools::save_html(page_body,file = "index.html"))
     htmltools::save_html(page_body,file = "correlation_page.html")
     
     newdata$prometheus <- prometheus_url

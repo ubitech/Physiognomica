@@ -51,7 +51,7 @@ linear_regression_from_chord <- function(source_index,target_index,metrics_appen
   
   metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = independent_metric_name, ylab = dependent_metric_name, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",independent_metric_name, "Y-AXIS:  ", dependent_metric_name),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
   
-  metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "metricsCombination.html")
+  metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "linear_regression.html")
   write.csv(finaldata, file = "finaldata.csv")
   return(metricsCombination_to_return)
 

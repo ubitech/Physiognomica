@@ -11,7 +11,7 @@ library(fpp2)
 #metric1$dimensions<-"{chart='users.cpu_system',dimension='netdata',family='cpu',instance='[fcef:ef08:3ddd:601a:3805:acf7:df34:ea8f]:19999',job='netdata'}"
 
 
-timeSeriesDecomposition <- function(prometheus_url,start,end,step,metrics,enriched){
+time_series_decomposition <- function(prometheus_url,start,end,step,metrics,enriched){
   print("time series decomposition")
   
   start <- paste("&start=" ,start, sep="")
