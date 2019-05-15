@@ -1,43 +1,43 @@
 #metrics are without dimensions
 chord <- function(prometheus_url,start,end,step,metrics,enriched){
   
-  if (isTRUE(enriched)){
-    print("i am enriched")
-    metrics_list =data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
-  }else{
-    #enrichMaestroPrometheusMetricsWithDimensionsWithoutSession
-    metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensionsWithoutSession(prometheus_url,metrics)
-  }
-  
-  
-  start <- paste("&start=" ,start, sep="")
-  end <- paste("&end=" ,end, sep="")
-  step <- paste("&step=" ,step, sep="")
-  print("getCorrelogram")
-  
-  for(i in metrics_list) {
-    print(i)
-  }
-
-    finaldata <- data.frame()
-    for(i in 1:nrow(metrics_list)) {
-      row <- metrics_list[i,]
-      metric_name <-row$name
-      metric_friendlyName <-row$friendlyName
+      if (isTRUE(enriched)){
+        print("i am enriched")
+        metrics_list =data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
+      }else{
+        #enrichMaestroPrometheusMetricsWithDimensionsWithoutSession
+        metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensionsWithoutSession(prometheus_url,metrics)
+      }
       
-      dimensions <-row$dimensions
-      print("dimensions")
-      print(dimensions)
-      mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
-      if (nrow(finaldata)==0){ finaldata <- mydata
-      }else{ 
-        if (nrow(mydata)!=0){
-          finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp")
+      
+      start <- paste("&start=" ,start, sep="")
+      end <- paste("&end=" ,end, sep="")
+      step <- paste("&step=" ,step, sep="")
+      print("getCorrelogram")
+      
+      for(i in metrics_list) {
+        print(i)
+      }
+      
+      finaldata <- data.frame()
+      for(i in 1:nrow(metrics_list)) {
+        row <- metrics_list[i,]
+        metric_name <- row$name
+        metric_friendlyName <- row$friendlyName
+        
+        dimensions <- row$dimensions
+        print("dimensions")
+        print(dimensions)
+        mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
+        if (nrow(finaldata) == 0){ finaldata <- mydata
+        }else{ 
+          if (nrow(mydata) != 0){
+            finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp") 
+          }
         }
       }
-    }
-    print("get final data")
-    colnames(finaldata)
+      print("get final data")
+      colnames(finaldata)
     
     finaldata[] <- lapply(finaldata, function(x) {
       if(is.factor(x)) as.numeric(as.character(x)) else x
@@ -172,14 +172,14 @@ analytics_session_id = chord_url_string.split('tmp/').pop().split('/files/')[0];
 alert(analytics_session_id);
 var http = new XMLHttpRequest();
 var url = 'http://212.101.173.35/ocpu/library/Physiognomica/R/linear_regression_from_chord ';
-var params = 'source_index='+source_index+'&target_index='+target_index+'&chord_url='+analytics_session_id;
+var params = 'source_index='+source_index+'&target_index='+target_index+'&metrics_appendix='+analytics_session_id;
 http.open('POST', url, true);
 
 //Send the proper header information along with the request
 http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
 http.onreadystatechange = function() {//Call a function when the state changes.
-  if(http.readyState == 4 && http.status == 200) {
+  if(http.readyState == 4 && http.status == 201) {
       alert(http.responseText);
   }
 }
@@ -222,5 +222,11 @@ http.send(params);"
     #https://stackoverflow.com/questions/17748566/how-can-i-turn-an-r-data-frame-into-a-simple-unstyled-html-table
     #return (htmltools::save_html(page_body,file = "index.html"))
     htmltools::save_html(page_body,file = "correlation_page.html")
-    return (correlation_matrix_json)
+    
+    newdata$prometheus <- prometheus_url
+    newdata$start <- start
+    newdata$end <- end
+    newdata$step <- step
+    
+    return (newdata)
 }

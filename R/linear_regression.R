@@ -139,8 +139,8 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
   result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
 
   data1 <-httr::content(result1)
-  print ("data1")
-  print (data1)
+  #print ("data1")
+  #print (data1)
   if (data1=="400 Bad Request"){return (empty_matrix)}
   
   #metric_name1 <-data1$data$result[[1]]$metric$`__name__`
@@ -175,8 +175,8 @@ convertPrometheusDataToTabularFormatWithoutFriendlynames <- function(prometheus_
   result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
   
   data1 <-httr::content(result1)
-  print ("data1")
-  print (data1)
+  #print ("data1")
+  #print (data1)
   if (data1=="400 Bad Request"){return (empty_matrix)}
   
   #metric_name1 <-data1$data$result[[1]]$metric$`__name__`
