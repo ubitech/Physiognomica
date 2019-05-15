@@ -55,32 +55,9 @@ linear_regression <- function(prometheus_url,start,end,step,metrics,enriched) {
  
  metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
  
- metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "metricsCombination.html")
+ metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "linear_regression.html")
  write.csv(finaldata, file = "finaldata.csv")
  return(metricsCombination_to_return)
- 
- #label<-paste("Full Axis Names are as follows:\n X-AXIS:\n",metric1friendlyName, "\n Y-AXIS:\n", metric2friendlyName, sep="\n" ) 
- #basicplot <- ggplot2::qplot(x=finaldata[[colnames(mydata1)[2]]],
- #                       y=finaldata[[colnames(mydata2)[2]]],
- #                       data=finaldata,
- #                       main=profiling_type,
- #                       xlab=substr(x_axis_name, 1, 30),
- #                       ylab=substr(y_axis_name, 1, 30),group=1)+
- # ggplot2::geom_line(colour="steelblue") +
- # ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-
- 
- #p2 <- cowplot::add_sub(basicplot, label, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5,
- #        vpadding = grid::unit(1, "lines"), fontfamily = "", fontface = "plain",
- #        colour = "blue", size = 6, angle = 0, lineheight = 0.9)
- #basicplot<-cowplot::ggdraw(p2)
- 
- # ggsave(file="test.svg", plot=basicplot, width=10, height=8)
- #fd2 <- finaldata
- #fd2$timestamp <- NULL
- #d3page <- r2d3::r2d3(data=fd2, options=c(25,50,-50,0,colnames(fd2)[1],colnames(fd2)[2],label),script = "R/linechart.js")
- #d3page1<- r2d3::save_d3_html(d3page, file = "lala.html")
- #XML::saveXML(d3page, file="lala.html", compression=0, indent=T)
  
 }
 
