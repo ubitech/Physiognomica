@@ -1,7 +1,7 @@
-multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enriched){
+multiple_linear_regression <- function(prometheus_url,periods,step,metrics,enriched){
   
-  start <- paste("&start=" ,start, sep="")
-  end <- paste("&end=" ,end, sep="")
+  #start <- paste("&start=" ,start, sep="")
+  #end <- paste("&end=" ,end, sep="")
   step <- paste("&step=" ,step, sep="")
   print("getCorrelogram")
   #print(metrics)
@@ -16,38 +16,49 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
     metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensionsWithoutSession(prometheus_url,metrics)
   }
   
-  
-  finaldata <- data.frame()
-  for(i in 1:nrow(metrics_list)) {
-    row <- metrics_list[i,]
-    metric_name <-row$name
-    metric_friendlyName <-row$friendlyName
+  datalist = list()
+  for(i in 1:nrow( periods )) {
+    #print(periods[i, "start"])
+    start <- paste("&start=" , periods[i, "start"], sep="")
+    end <- paste("&end=" , periods[i, "end"], sep="")
+    #print(start)
+    #print(end)
     
-    dimensions <-row$dimensions
-    print("dimensions")
-    print(dimensions)
-    mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
-    if (nrow(finaldata)==0){ finaldata <- mydata
-    }else{ 
-      if (nrow(mydata)!=0){
-        finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp")
+    finaldata <- data.frame()
+    for(i in 1:nrow(metrics_list)) {
+      row <- metrics_list[i,]
+      metric_name <-row$name
+      metric_friendlyName <-row$friendlyName
+      
+      dimensions <-row$dimensions
+      print("dimensions")
+      print(dimensions)
+      mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
+      if (nrow(finaldata)==0){ finaldata <- mydata
+      }else{ 
+        if (nrow(mydata)!=0){
+          finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp")
+        }
       }
     }
+    print("get final data")
+    #colnames(finaldata)
+    datalist[[i]] <- finaldata
   }
-  print("get final data")
-  colnames(finaldata)
   
-  finaldata[] <- lapply(finaldata, function(x) {
+  big_data = do.call(rbind, datalist)
+  
+  big_data[] <- lapply(big_data, function(x) {
     if(is.factor(x)) as.numeric(as.character(x)) else x
   })
   
   
-  finaldata <- subset( finaldata, select = -c(timestamp) )
+  big_data <- subset( big_data, select = -c(timestamp) )
   
   
-  final_data_column_names <- colnames(finaldata)
-  final_data_column_size <- ncol(finaldata)
-  nrow(finaldata)
+  final_data_column_names <- colnames(big_data)
+  final_data_column_size <- ncol(big_data)
+  nrow(big_data)
   
   
   usq <- 0
@@ -57,7 +68,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   }
   print(usq)
   
-  colnames(finaldata)<-usq
+  colnames(big_data)<-usq
   
   
   metrics_appendix <- data.frame(matrix(unlist(usq)),stringsAsFactors=FALSE)
@@ -76,9 +87,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   }
   metrics_appendix$name <- metrics_name
   
-  colnames(finaldata)
-  
-  linearMod <- lm(m1 ~ ., data = finaldata) 
+  linearMod <- lm(m1 ~ ., data = big_data) 
   print(linearMod)
   summary(linearMod) 
   
@@ -86,7 +95,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   summary(step.model1)
   
   linear_regression_variables <- variable.names(step.model1) 
-  linear_regression_variables <-linear_regression_variables[-1];
+  linear_regression_variables <- linear_regression_variables[-1];
   
   variables_lenght <- length(linear_regression_variables)
   
@@ -94,7 +103,7 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   
   svg("multiple_linear_regression.svg",width=14,height=7)
   par(mfrow = c(2,num_of_columns)) ## 2 x 2 plots for same model :
-  termplot(step.model1,partial.resid=TRUE, col.res = "purple")
+  termplot(step.model1,partial.resid = TRUE, col.res = "purple")
   dev.off()
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
@@ -108,8 +117,6 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
   
   #library(sjPlot)
   summary_as_html <- sjPlot::tab_model(step.model1,use.viewer=FALSE,show.se=TRUE,show.ci=FALSE, file="summary_model.html")
-  #cat(tab$page.content)
-  #htmltools::save_html(sjPlot::tab_model(linearMod),file = "summary_model.html")
   
   ibody <- 
     shiny::tags$div(shiny::tags$h3("Multiple linear regression model for metric"),
@@ -124,9 +131,6 @@ multiple_linear_regression <- function(prometheus_url,start,end,step,metrics,enr
     )
   ) 
   htmltools::save_html(page_body,file = "multiple_linear_regression.html")
-  return (summary_as_html)
-  
-  #library(GGally)
-  #ggscatmat(finaldata, columns = 1: ncol(finaldata))
+  return(summary_as_html)
   
 }
