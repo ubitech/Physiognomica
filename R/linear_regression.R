@@ -1,21 +1,11 @@
 # This is an function named 'combinePrometheusMetrics'
 # which has as output a visualization of two prometheus metrics
-#prometheus_url = "http://212.101.173.70:9090/api/v1/query?query="
-#prometheus_url = "http://212.101.173.70:9090/api/v1/query_range?query="
-#start = "2018-09-27T10:10:30.781Z"
-#end = "2018-09-27T20:11:00.781Z"
-#step = "10m"
-#period = "[1m]"
-#metric1 = "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average"
-#metric2 = "netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension=\"writes\"}"
-#profiling_type = "Resource Efficiency"
-#fisiognomica::combinePrometheusMetrics(prometheus_url,start,stop,step,metric1,metric2,profiling_type)
-linear_regression <- function(prometheus_url,start,end,step,metrics,enriched) {
+linear_regression <- function(prometheus_url,periods,step,metrics,enriched) {
 
-  start <- paste("&start=" ,start, sep="")
-  end <- paste("&end=" ,end, sep="")
+  #periods_dataframe = jsonlite::fromJSON('[{"ok":true,"id":"x123","rev":"1-1794908527"},{"ok":false,"id":"x123","rev":"1-1794908527"}]')
+  #start <- paste("&start=" ,start, sep="")
+  #end <- paste("&end=" ,end, sep="")
   step <- paste("&step=" ,step, sep="")
-  
   
   metric1name = metrics[1]
   metric1friendlyName = metrics[1]
@@ -24,41 +14,56 @@ linear_regression <- function(prometheus_url,start,end,step,metrics,enriched) {
   metric2name =metrics[2]
   metric2friendlyName =metrics[2]
   metric2dimensions = stringr::str_extract(metrics[2], stringr::regex("\\{.*\\}"))
-
- mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
+  
+  datalist = list()
+  
+  for(i in 1:nrow(periods)) {
+    #print(periods[i, "start"])
+    start <- paste("&start=" ,periods[i, "start"], sep="")
+    end <- paste("&end=" ,periods[i, "end"], sep="")
+    print(start)
+    print(end)
+    mydata1 <-convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
+    
+    mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2name),toString(metric2friendlyName),toString(metric2dimensions),start,end,step)
+    
+    finaldata <- merge(mydata1, mydata2, by = "timestamp")
+    datalist[[i]] <-finaldata
+  }
+  
+  big_data = do.call(rbind, datalist)
+  
+  #yaxisd3 <- colnames(big_data)[2]
+  #xaxisd3 <- colnames(big_data)[3]
+  
+  yaxisd3 <- big_data[[colnames(big_data)[2]]]
+  xaxisd3 <- big_data[[colnames(big_data)[3]]]
+  
+  xaxisd3 <- as.numeric(as.character(xaxisd3))
+  yaxisd3 <- as.numeric(as.character(yaxisd3))
+  
+  linearMod <- lm(yaxisd3 ~ xaxisd3, data = big_data)  # build linear regression model on full data
+  print(linearMod)
+  summary(linearMod) 
+  
+  cor(xaxisd3, yaxisd3)
+  cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))
+  
+  linearModString <- toString(capture.output(summary(linearMod)))
+  
+  #basicplot <- ggplotRegression(linearMod)
+  
+  myslope <-coef(linearMod)["xaxisd3"]
+  myintercept <- coef(linearMod)["(Intercept)"]
+  
+  
+  metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
+  
+  metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "linear_regression.html")
+  write.csv(big_data, file = "finaldata.csv")
+  return(metricsCombination_to_return)
  
- mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2name),toString(metric2friendlyName),toString(metric2dimensions),start,end,step)
- 
- finaldata <- merge(mydata1, mydata2, by = "timestamp")
- 
- yaxisd3 <- finaldata[[colnames(mydata1)[2]]]
- xaxisd3 <- finaldata[[colnames(mydata2)[2]]]
- 
- xaxisd3 <- as.numeric(as.character(xaxisd3))
- yaxisd3 <- as.numeric(as.character(yaxisd3))
- 
- linearMod <- lm(yaxisd3 ~ xaxisd3, data = finaldata)  # build linear regression model on full data
- print(linearMod)
- summary(linearMod) 
- 
- 
- cor(xaxisd3, yaxisd3)
- cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))
-
- linearModString <- toString(capture.output(summary(linearMod)))
- 
- #basicplot <- ggplotRegression(linearMod)
- 
- myslope <-coef(linearMod)["xaxisd3"]
- myintercept <- coef(linearMod)["(Intercept)"]
- 
- 
- metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
- 
- metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "linear_regression.html")
- write.csv(finaldata, file = "finaldata.csv")
- return(metricsCombination_to_return)
- 
+  
 }
 
 ggplotRegression <- function (fit) {
@@ -76,14 +81,6 @@ ggplotRegression <- function (fit) {
 
 combinePrometheusPlots <- function(dataset1,dataset2,dataset3,x_axis_name,y_axis_name, description) {
   
-  #dataset1$xvariable=as.numeric(levels(dataset1[[colnames(dataset1)[2]]]))[dataset1[[colnames(dataset1)[2]]]]
-  
-  #dataset1$yvariable=as.numeric(levels(dataset1[[colnames(dataset1)[3]]]))[dataset1[[colnames(dataset1)[3]]]]
-  
-  #dataset2$xvariable=as.numeric(levels(dataset2[[colnames(dataset2)[2]]]))[dataset2[[colnames(dataset2)[2]]]]
-  
-  #dataset2$yvariable=as.numeric(levels(dataset2[[colnames(dataset2)[3]]]))[dataset2[[colnames(dataset2)[3]]]]
-  
   basicplot <- ggplot2::qplot(x=dataset1[[colnames(dataset1)[2]]],
                               y=dataset1[[colnames(dataset1)[3]]],
                               data=dataset1, size=I(0.6),
@@ -93,10 +90,8 @@ combinePrometheusPlots <- function(dataset1,dataset2,dataset3,x_axis_name,y_axis
     ggplot2::geom_line(colour="steelblue") +
     ggplot2::geom_line(data=dataset2, ggplot2::aes(x =dataset2[[colnames(dataset2)[2]]], y=dataset2[[colnames(dataset2)[3]]]), color = "red") +
     ggplot2::geom_line(data=dataset3, ggplot2::aes(x =dataset3[[colnames(dataset3)[2]]], y=dataset3[[colnames(dataset3)[3]]]), color = "green") +
-    #ggplot2::scale_x_continuous(breaks = scales::pretty_breaks()) +
-    #ggplot2::scale_y_continuous(breaks = scales::pretty_breaks()) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-    
+  
   
   p2 <- cowplot::add_sub(basicplot, description, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5,
                          vpadding = grid::unit(1, "lines"), fontfamily = "", fontface = "plain",
@@ -107,14 +102,14 @@ combinePrometheusPlots <- function(dataset1,dataset2,dataset3,x_axis_name,y_axis
 }
 
 convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
-
-    empty_matrix <-matrix(, nrow = 0, ncol = 0)
+  
+  empty_matrix <-matrix(, nrow = 0, ncol = 0)
   print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
   
   prometheus_url_query_range <- paste(prometheus_url , "/api/v1/query_range?query=", sep="")
   print(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
   result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
-
+  
   data1 <-httr::content(result1)
   #print ("data1")
   #print (data1)
@@ -131,15 +126,49 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
     print("some null values here")
     return (empty_matrix)
   }else{
-      print("i got the values")
-      mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
-      #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
-      colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , "", sep=""))
-      #print(mydata1)
-      return(mydata1)
-    }
+    print("i got the values")
+    mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
+    #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+    colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , "", sep=""))
+    #print(mydata1)
+    return(mydata1)
+  }
   
- 
+}
+
+convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
+  
+  empty_matrix <-matrix(, nrow = 0, ncol = 0)
+  print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
+  
+  prometheus_url_query_range <- paste(prometheus_url , "/api/v1/query_range?query=", sep="")
+  print(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
+  result1 <-  httr::GET(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
+  
+  data1 <-httr::content(result1)
+  #print ("data1")
+  #print (data1)
+  if (data1=="400 Bad Request"){return (empty_matrix)}
+  
+  #metric_name1 <-data1$data$result[[1]]$metric$`__name__`
+  #metric_name1 <-gsub(":", "_", metric_name1)
+  if(length(data1$data$result)==0){
+    print(paste("No datapoints found for ",metric_name, sep=""))
+    return (empty_matrix)
+  }
+  values1 <- data1$data$result[[1]]$values
+  if (is.null(values1)) {
+    print("some null values here")
+    return (empty_matrix)
+  }else{
+    print("i got the values")
+    mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
+    #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
+    colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , "", sep=""))
+    #print(mydata1)
+    return(mydata1)
+  }
+
 }
 
 convertPrometheusDataToTabularFormatWithoutFriendlynames <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
@@ -174,7 +203,6 @@ convertPrometheusDataToTabularFormatWithoutFriendlynames <- function(prometheus_
     #print(mydata1)
     return(mydata1)
   }
-  
   
 }
 #prometheous_url
