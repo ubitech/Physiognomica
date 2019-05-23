@@ -21,8 +21,8 @@ linear_regression <- function(prometheus_url,periods,step,metrics,enriched) {
     #print(periods[i, "start"])
     start <- paste("&start=" ,periods[i, "start"], sep="")
     end <- paste("&end=" ,periods[i, "end"], sep="")
-    print(start)
-    print(end)
+    #print(start)
+    #print(end)
     mydata1 <-convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
     
     mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2name),toString(metric2friendlyName),toString(metric2dimensions),start,end,step)
