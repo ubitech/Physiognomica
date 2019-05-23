@@ -1,16 +1,6 @@
-
-# prometheus_url = "http://212.101.173.70:9090/api/v1/query_range?query="
-# start = "&start=2018-09-27T10:10:30.781Z"
-# end = "&end=2018-09-27T20:11:00.781Z&step"
-# step = "=10m"
-# start = "2018-09-27T10:10:30.781Z"
-# end = "2018-09-27T20:11:00.781Z&step"
-# step = "10m"
-# metrics = c("netdata:lambdaapp:traefik:lambdacoreapp_system_load_load_average{dimension='load1'}", "netdata:lambdaapp:traefik:lambdacoreapp_cgroup_cpu_per_core_percent_average","netdata:lambdaapp:traefik:lambdaproxy_disk_io_kilobytes_persec_average{dimension='writes'}", "netdata:lambdaapp:traefik:lambdacoreapp_system_ipv4_kilobits_persec_average{dimension='received'}", "netdata:lambdaapp:traefik:multfunc_system_entropy_entropy_average", "netdata:lambdaapp:traefik:sumfunc_system_active_processes_processes_average{instance='[fc04:4d1b:4f34:67cc:9986:ecb3:d73b:2990]:19999'}")
-# fisiognomica::getCorrelogram(prometheous_url ,start,end,step,metrics)
-correlogram <- function(prometheus_url,start,end,step,metrics,enriched){
-  start <- paste("&start=" ,start, sep="")
-  end <- paste("&end=" ,end, sep="")
+correlogram <- function(prometheus_url,periods,step,metrics,enriched){
+  #start <- paste("&start=" ,start, sep="")
+  #end <- paste("&end=" ,end, sep="")
   step <- paste("&step=" ,step, sep="")
   print("getCorrelogram")
   #print(metrics)
@@ -25,45 +15,56 @@ correlogram <- function(prometheus_url,start,end,step,metrics,enriched){
     metrics_list <- Physiognomica::enrichMaestroPrometheusMetricsWithDimensionsWithoutSession(prometheus_url,metrics)
   }
   
-  
-  finaldata <- data.frame()
-  for(i in 1:nrow(metrics_list)) {
-    row <- metrics_list[i,]
-    metric_name <-row$name
-    metric_friendlyName <-row$friendlyName
+  datalist = list()
+  for(i in 1:nrow(periods)) {
+    #print(periods[i, "start"])
+    start <- paste("&start=" ,periods[i, "start"], sep="")
+    end <- paste("&end=" ,periods[i, "end"], sep="")
+    #print(start)
+    #print(end)
     
-    dimensions <-row$dimensions
-    print("dimensions")
-    print(dimensions)
-    mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
-    if (nrow(finaldata)==0){ finaldata <- mydata
-    }else{ 
-      if (nrow(mydata)!=0){
-        finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp")
+    finaldata <- data.frame()
+    for(i in 1:nrow(metrics_list)) {
+      row <- metrics_list[i,]
+      metric_name <-row$name
+      metric_friendlyName <-row$friendlyName
+      
+      dimensions <-row$dimensions
+      print("dimensions")
+      print(dimensions)
+      mydata <- Physiognomica::convertPrometheusDataToTabularFormat(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step)
+      if (nrow(finaldata)==0){ finaldata <- mydata
+      }else{ 
+        if (nrow(mydata)!=0){
+          finaldata <- merge(x=finaldata,y=mydata, by.x = "timestamp")
+        }
       }
     }
-  }
-  print("get final data")
-  colnames(finaldata)
+    print("get final data")
+    colnames(finaldata)
+    datalist[[i]] <-finaldata
+    
+    }
   
-  finaldata[] <- lapply(finaldata, function(x) {
+  big_data = do.call(rbind, datalist)
+  
+  big_data[] <- lapply(big_data, function(x) {
     if(is.factor(x)) as.numeric(as.character(x)) else x
   })
-  sapply(finaldata, class)
-  #finaldata <- subset( finaldata, select = -c(timestamp) )
-  finaldata$timestamp <-0
+  sapply(big_data, class)
+  #big_data <- subset( big_data, select = -c(timestamp) )
+  big_data$timestamp <-0
   
-  #print("finaldata")
-  #print(finaldata)
-  finaldata <- Filter(function(x) sd(x) != 0, finaldata)
+  #print(big_data)
+  big_data <- Filter(function(x) sd(x) != 0, big_data)
   
-  if(length(finaldata)==0){
+  if(length(big_data)==0){
     
     stop("Not enough values so as to generate a correlogram!")
   }
   
-  final_data_column_names <- colnames(finaldata)
-  final_data_column_size <- ncol(finaldata)
+  final_data_column_names <- colnames(big_data)
+  final_data_column_size <- ncol(big_data)
   
   
   
@@ -74,7 +75,7 @@ correlogram <- function(prometheus_url,start,end,step,metrics,enriched){
   }
   print(usq)
   
-  colnames(finaldata)<-usq
+  colnames(big_data)<-usq
   
   
   metrics_appendix <- data.frame(matrix(unlist(usq)),stringsAsFactors=FALSE)
@@ -94,28 +95,17 @@ correlogram <- function(prometheus_url,start,end,step,metrics,enriched){
   metrics_appendix$name <- metrics_name
   
   #correlation matrix
-  M<-cor(finaldata)
-  
-  #corrplot::corrplot(M, type = "upper", tl.pos = "td", method = "circle", tl.cex = 0.4, tl.col = 'black',order = "hclust", diag = FALSE)
-  
-  #corrplot::corrplot(M, type = "upper", tl.pos = "td",method = "number", tl.cex = 0.2, tl.col = 'black',order = "hclust", diag = FALSE)
-  
-  #apply significance--Tasos
-  #finaldata_significance <- cor.mtest(finaldata, conf.level= .95)
-  #corrplot:corrplot(M, p.mat = finaldata_significance$p, insig = "pch", sig.level = .05)
+  M<-cor(big_data)
   
   # matrix of the p-value of the correlation
-  p.mat <- Physiognomica::cor.mtest(finaldata)
+  p.mat <- Physiognomica::cor.mtest(big_data)
   head(p.mat[, 1:5])
-  
-  #corrplot::corrplot(M, type="upper", tl.cex = 0.4, order="hclust", p.mat = p.mat, sig.level = 0.05, insig = "blank", diag = FALSE)
 
   svg("correlogram.svg",width=14,height=7)
   corrplot::corrplot(M, type="upper", tl.cex = 0.4, p.mat = p.mat, sig.level = 0.01, insig = "blank", diag = FALSE)
   dev.off()
   
   write.csv(metrics_appendix, file = "metrics_appendix.csv")
-  
   
   myvars <- c("metric_number", "friendlyName_with_dimensions")
   newdata <- metrics_appendix[myvars]
