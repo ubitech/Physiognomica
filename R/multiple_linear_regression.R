@@ -102,7 +102,12 @@ multiple_linear_regression <- function(prometheus_url,periods,step,metrics,enric
   num_of_columns <- round(variables_lenght/2)
   
   svg("multiple_linear_regression.svg",width=14,height=7)
-  par(mfrow = c(2,num_of_columns)) ## 2 x 2 plots for same model :
+  if (variables_lenght==1){
+    par(mfrow = c(1,1)) ## 2 x 1 plots for same model 
+  }else{
+    par(mfrow = c(2,num_of_columns)) ## 2 x n plots for same model 
+  }
+  
   termplot(step.model1,partial.resid = TRUE, col.res = "purple")
   dev.off()
   

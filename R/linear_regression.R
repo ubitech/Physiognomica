@@ -23,7 +23,7 @@ linear_regression <- function(prometheus_url,periods,step,metrics,enriched) {
     end <- paste("&end=" ,periods[i, "end"], sep="")
     #print(start)
     #print(end)
-    mydata1 <-convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
+    mydata1 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric1name),toString(metric1friendlyName),toString(metric1dimensions),start,end,step)
     
     mydata2 <- convertPrometheusDataToTabularFormat(prometheus_url,toString(metric2name),toString(metric2friendlyName),toString(metric2dimensions),start,end,step)
     
@@ -46,8 +46,8 @@ linear_regression <- function(prometheus_url,periods,step,metrics,enriched) {
   print(linearMod)
   summary(linearMod) 
   
-  cor(xaxisd3, yaxisd3)
-  cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))
+  #cor(xaxisd3, yaxisd3)
+  #cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))
   
   linearModString <- toString(capture.output(summary(linearMod)))
   
@@ -57,7 +57,7 @@ linear_regression <- function(prometheus_url,periods,step,metrics,enriched) {
   myintercept <- coef(linearMod)["(Intercept)"]
   
   
-  metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(capture.output(cor.test(xaxisd3, yaxisd3, method=c("pearson", "kendall", "spearman"))))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
+  metricsCombination <-  scatterD3::scatterD3(x = xaxisd3, y = yaxisd3,xlab = metric2friendlyName, ylab = metric1friendlyName, lines = data.frame(slope = myslope, intercept = myintercept),ellipses = TRUE, caption = list(title = paste("X-AXIS:  ",metric2friendlyName, "Y-AXIS:  ", metric1friendlyName),subtitle = paste("METRICS CORRELATION: ", toString(cor(xaxisd3, yaxisd3))),text =  paste("LINEAR MODEL INFORMATION:" , linearModString,sep="\n")))
   
   metricsCombination_to_return <- htmlwidgets::saveWidget(metricsCombination, file = "linear_regression.html")
   write.csv(big_data, file = "finaldata.csv")
