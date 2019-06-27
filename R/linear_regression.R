@@ -139,7 +139,7 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
 convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metric_friendlyName,dimensions,start,end,step) {
   
   empty_matrix <-matrix(, nrow = 0, ncol = 0)
-  print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
+  #print(paste("execute convertPrometheusDataToTabularFormat for metric ",metric_name, sep=""))
   
   prometheus_url_query_range <- paste(prometheus_url , "/api/v1/query_range?query=", sep="")
   print(paste(prometheus_url_query_range , metric_name, start,end,step, sep=""))
@@ -161,7 +161,7 @@ convertPrometheusDataToTabularFormat <- function(prometheus_url,metric_name,metr
     print("some null values here")
     return (empty_matrix)
   }else{
-    print("i got the values")
+    #print("i got the values")
     mydata1 <- matrix(unlist(values1),  ncol = 2, byrow = TRUE)
     #colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , dimensions, sep=""))
     colnames(mydata1) <- c("timestamp", paste(metric_friendlyName , "", sep=""))

@@ -7,6 +7,7 @@ test <- function(prometheus_url,periods,step,metrics,enriched) {
   
   metrics_list = data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
   print(metrics_list)
+  print('i did a small change')
   
 
   return (periods)
