@@ -32,6 +32,9 @@ filter_healthy_metrics <- function(prometheus_url,periods,step,metrics,enriched)
    
   }
   
+  healthy_metrics_list <- unique(healthy_metrics_list)
+  unhealthy_metrics_json <- unique(unhealthy_metrics_list)
+  
   healthy_metrics_json <- jsonlite::toJSON(healthy_metrics_list)
   write(healthy_metrics_json, "healthy_metrics.json")
   
