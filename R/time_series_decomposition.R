@@ -11,11 +11,14 @@ library(fpp2)
 #metric1$dimensions<-"{chart='users.cpu_system',dimension='netdata',family='cpu',instance='[fcef:ef08:3ddd:601a:3805:acf7:df34:ea8f]:19999',job='netdata'}"
 
 
-time_series_decomposition <- function(prometheus_url,start,end,step,metrics,enriched){
+time_series_decomposition <- function(prometheus_url,periods,step,metrics,enriched){
   print("time series decomposition")
   
-  start <- paste("&start=" ,start, sep="")
-  end <- paste("&end=" ,end, sep="")
+  for(i in 1:nrow(periods)) {
+    #print(periods[i, "start"])
+    start <- paste("&start=" ,periods[i, "start"], sep="")
+    end <- paste("&end=" ,periods[i, "end"], sep="")
+  }
   step <- paste("&step=" ,step, sep="")
   
   metricname = metrics[1]
