@@ -1,15 +1,20 @@
 test <- function(prometheus_url,periods,step,metrics,enriched) {
   
-  for(i in 1:nrow( periods )) {
-   print(periods[i, "start"])
-    print('--------------------------------')
-  }
+  #for(i in 1:nrow( periods )) {
+  # print(periods[i, "start"])
+  #  print('--------------------------------')
+  #/}
   
   metrics_list = data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
   print(metrics_list)
-  print('i did a small change')
   
-
-  return (periods)
+  ibody <- shiny::tags$div(shiny::tags$h3("This is a test analytics results page"))
+  
+  page_body <- shiny::tags$html(
+    shiny::tags$body(
+      ibody
+    )
+  ) 
+  htmltools::save_html(page_body,file = "test.html")
   
 }
