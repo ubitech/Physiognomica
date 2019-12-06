@@ -8,7 +8,7 @@ test <- function(prometheus_url,periods,step,metrics,enriched) {
   metrics_list = data.frame(name=metrics,friendlyName=metrics,dimensions = stringr::str_extract(metrics, stringr::regex("\\{.*\\}")))
   print(metrics_list)
   
-  ibody <- shiny::tags$div(shiny::tags$h3("This is demo test analytics results page"))
+  ibody <- shiny::tags$div(shiny::tags$h3("This is demo111 test analytics results page"))
   
   page_body <- shiny::tags$html(
     shiny::tags$body(
