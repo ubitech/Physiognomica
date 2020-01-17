@@ -60,7 +60,11 @@ correlogram <- function(prometheus_url,periods,step,metrics,enriched){
   
   if(length(big_data)==0){
     
-    stop("Not enough values so as to generate a correlogram!")
+    #stop("Not enough values so as to generate a correlogram!")
+    ibody <- shiny::tags$div(shiny::tags$h3("Not enough values so as to generate a correlogram!"))
+    page_body <- shiny::tags$html(shiny::tags$body(ibody)) 
+    htmltools::save_html(page_body,file = "correlogram.html")
+    return ()
   }
   
   final_data_column_names <- colnames(big_data)
